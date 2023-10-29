@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Boot",
+    "descr": "Brown leather boot",
+    "price": 10.99,
+    "img": "assets/img/boot.jpg",
+    "stock": 10,
+    "code": "XKrVCKn2",
+    "id": 1
+  },
+  {
+    "name": "Hat",
+    "descr": "Black leather hat",
+    "price": 19.99,
+    "img": "assets/img/hat.jpg",
+    "stock": 5,
+    "code": "dVcAvWYR",
+    "id": 2
+  }
+]
