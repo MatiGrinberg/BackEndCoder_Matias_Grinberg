@@ -9,16 +9,47 @@ class ProductManager {
   }
 
   // Method to add a product
-  addProduct(product) {
+  addProduct({
+    title,
+    description,
+    price,
+    stock,
+    category,
+    thumbnails = [],
+    status = true,
+  } = {}) {
+    if (
+      typeof title !== "string" ||
+      typeof description !== "string" ||
+      typeof price !== "number" ||
+      typeof stock !== "number" ||
+      typeof category !== "string" ||
+      typeof status !== "boolean" ||
+      !Array.isArray(thumbnails)
+    ) {
+      console.error(
+        "Invalid product format. Check the data types of the fields."
+      );
+      return;
+    }
     let uniqueCode;
-    do {
-      uniqueCode = this.generateRandomCode();
-    } while (this.products.some((p) => p.code === uniqueCode));
-    product.code = uniqueCode;
-    product.id = this.generateUniqueId();
-    this.products.push(product);
-    this.nextProductId++;
-    this.saveProductsToDisk();
+  do {
+    uniqueCode = this.generateRandomCode();
+  } while (this.products.some((p) => p.code === uniqueCode));
+  const newProduct = {
+    id: this.generateUniqueId(),
+    title,
+    description,
+    code: uniqueCode,
+    price,
+    stock,
+    category,
+    thumbnails,
+    status,
+  };
+  this.products.push(newProduct);
+  this.nextProductId++;
+  this.saveProductsToDisk();
   }
 
   // Method to generate a unique Id
@@ -42,6 +73,7 @@ class ProductManager {
   // Method to remove a product by its ID
   deleteProduct(productId) {
     this.products = this.products.filter((product) => product.id !== productId);
+    this.saveProductsToDisk();
   }
 
   // Method to list all products
@@ -107,3 +139,5 @@ class ProductManager {
 }
 
 module.exports = ProductManager;
+
+
