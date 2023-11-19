@@ -1,0 +1,16 @@
+<h1>Real-Time Products</h1>
+<ul>
+  {{#each products}}
+    <li>{{this.name}} - {{this.price}}</li>
+  {{/each}}
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io(); // Connect to the WebSocket server
+
+  socket.on('productListUpdated', (updatedProducts) => {
+    // Update the displayed product list when receiving updates from WebSocket
+    // Code here to update the HTML content with the updated products
+  });
+</script>

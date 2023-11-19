@@ -1,6 +1,12 @@
 const express = require("express");
+const exphbs = require('express-handlebars');
+const WebSocket = require('ws');
 const app = express();
+const server = require('http').Server(app); // Create an HTTP server instance
+const io = require('socket.io')(server);
 const port = 8080;
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
 app.use(express.json())
 
 // Import the classes
@@ -9,9 +15,46 @@ const productManager = new ProductManager("products.json");
 const CartManager = require("./CartManager");
 const cartManager = new CartManager("carts.json");
 
+// WebSocket setup using Socket.io
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  socket.emit('connected', 'You are connected to the server!');
+
+  socket.on('newProductAdded', (newProduct) => {
+    productManager.addProduct(newProduct);
+    const updatedProducts = productManager.getProducts();
+    io.emit('productListUpdated', updatedProducts); 
+  });
+
+  socket.on('productDeleted', (productId) => {
+    productManager.deleteProduct(productId);
+    const updatedProducts = productManager.getProducts();
+    io.emit('productListUpdated', updatedProducts); 
+  });
+});
+
+
 // Access the root path
 app.get("/", (req, res) => {
   res.send("Welcome to MG Node.js project!");
+});
+
+// Route to render realTimeProducts.handlebars for real-time updates
+app.get("/realtimeproducts", (req, res) => {
+  const products = productManager.getProducts();
+  res.render("../views/realTimeProducts.handlebars", { products });
+});
+
+// Route to get a list of products
+app.get("/products", (req, res) => {
+  const products = productManager.getProducts();
+  const limit = parseInt(req.query.limit);
+  if (!isNaN(limit) && limit > 0) {
+    const limitedProducts = products.slice(0, limit);
+    res.render("../views/home.handlebars", { products: limitedProducts });
+  } else {
+    res.render("../views/home.handlebars", { products });
+  }
 });
 
 // Route to add a product
@@ -19,6 +62,13 @@ app.post("/products", (req, res) => {
   const newProduct = req.body;
   productManager.addProduct(newProduct);
   res.json({ message: "Product added successfully" });
+});
+
+// Route to delete a product by ID
+app.delete("/products/:id", (req, res) => {
+  const productId = parseInt(req.params.id);
+  productManager.deleteProduct(productId);
+  res.json({ message: "Product deleted successfully" });
 });
 
 // Route to update a product by ID
@@ -29,14 +79,6 @@ app.put("/products/:id", (req, res) => {
   res.json({ message: "Product updated successfully" });
 });
 
-// Route to delete a product by ID
-app.delete("/products/:id", (req, res) => {
-  const productId = parseInt(req.params.id);
-  productManager.deleteProduct(productId);
-  res.json({ message: "Product deleted successfully" });
-});
-
-
 // Route to get a product by its ID
 app.get("/products/:pid", (req, res) => {
   const productId = parseInt(req.params.pid);
@@ -45,18 +87,6 @@ app.get("/products/:pid", (req, res) => {
     res.json(product);
   } else {
     res.status(404).json({ message: "Product not found" });
-  }
-});
-
-// Route to get a list of products
-app.get("/products", (req, res) => {
-  const products = productManager.getProducts();
-  const limit = parseInt(req.query.limit);
-  if (!isNaN(limit) && limit > 0) {
-    const limitedProducts = products.slice(0, limit);
-    res.json({ products: limitedProducts });
-  } else {
-    res.json({ products });
   }
 });
 
