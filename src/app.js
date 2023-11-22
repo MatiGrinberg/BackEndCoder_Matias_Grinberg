@@ -2,10 +2,10 @@ const express = require("express");
 const exphbs = require('express-handlebars');
 const WebSocket = require('ws');
 const app = express();
-const server = require('http').Server(app); // Create an HTTP server instance
+const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const port = 8080;
-app.engine('handlebars', exphbs());
+app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.use(express.json())
 
@@ -61,6 +61,8 @@ app.get("/products", (req, res) => {
 app.post("/products", (req, res) => {
   const newProduct = req.body;
   productManager.addProduct(newProduct);
+  const updatedProducts = productManager.getProducts();
+  io.emit('productListUpdated', updatedProducts);
   res.json({ message: "Product added successfully" });
 });
 
@@ -68,6 +70,8 @@ app.post("/products", (req, res) => {
 app.delete("/products/:id", (req, res) => {
   const productId = parseInt(req.params.id);
   productManager.deleteProduct(productId);
+  const updatedProducts = productManager.getProducts();
+  io.emit('productListUpdated', updatedProducts);
   res.json({ message: "Product deleted successfully" });
 });
 
@@ -76,6 +80,8 @@ app.put("/products/:id", (req, res) => {
   const productId = parseInt(req.params.id);
   const updatedFields = req.body;
   productManager.updateProduct(productId, updatedFields);
+  const updatedProducts = productManager.getProducts();
+  io.emit('productListUpdated', updatedProducts);
   res.json({ message: "Product updated successfully" });
 });
 
@@ -89,6 +95,9 @@ app.get("/products/:pid", (req, res) => {
     res.status(404).json({ message: "Product not found" });
   }
 });
+
+
+
 
 
 // Route to create a new cart
