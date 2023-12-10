@@ -12,6 +12,8 @@ const productSchema = new mongoose.Schema({
   thumbnails: [String],
   status: Boolean,
 });
+const Product = mongoose.model('products', productSchema);
+
 
 // Schema for the 'messages' collection
 const messageSchema = new mongoose.Schema({
@@ -19,21 +21,17 @@ const messageSchema = new mongoose.Schema({
   content: String,
   timestamp: { type: Date, default: Date.now },
 });
+const Message = mongoose.model('messages', messageSchema);
+
 
 // Schema for the 'carts' collection
 const cartSchema = new mongoose.Schema({
   userId: String,
-  products: [
-    {
-      productId: String,
-      quantity: Number,
-    },
-  ],
+  products: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    quantity: Number
+  }]
 });
-
-// Create models from the schemas
-const Product = mongoose.model('products', productSchema);
-const Message = mongoose.model('messages', messageSchema);
 const Cart = mongoose.model('carts', cartSchema);
 
 module.exports = {

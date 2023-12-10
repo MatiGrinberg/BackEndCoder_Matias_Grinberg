@@ -1,0 +1,22 @@
+<h1>Products</h1>
+
+{{#each products}}
+  <!-- Display product information -->
+  <h3>{{this.name}}</h3>
+  <p>{{this.description}}</p>
+  <p>Price: ${{this.price}}</p>
+  <!-- Add button to add product to cart -->
+  <form
+    action="/carts/657590c3cc1469187ebe231f/product/{{this._id}}"
+    method="POST"
+  >
+    <input type="hidden" name="quantity" value="1" />
+    <button type="submit">Add to Cart</button>
+  </form>
+{{/each}}
+
+<script>
+  // Extract JSON data from the script tag or data attribute const jsonData =
+  JSON.parse('{{jsonData}}'); // Use the jsonData object as needed
+  console.log(jsonData);
+</script>

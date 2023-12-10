@@ -1,0 +1,20 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cart Details</title>
+  </head>
+  <body>
+    <h1>Cart Details</h1>
+    <h2>Cart ID: {{cart._id}}</h2>
+    <p>User ID: {{cart.userId}}</p>
+    <h3>Products in Cart:</h3>
+    <ul>
+      {{#each cart.products}}
+        <li>
+          <p>Product ID: {{this._id}}</p>
+          <p>Quantity: {{this.quantity}}</p>
+        </li>
+      {{/each}}
+    </ul>
+  </body>
+</html>
