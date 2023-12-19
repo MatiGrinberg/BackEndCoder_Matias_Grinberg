@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>User Profile</h1>
+    {{#if user}}
+        <p>First Name: {{user.first_name}}</p>
+        <p>Last Name: {{user.last_name}}</p>
+    {{else}}
+        <p>No user logged in.</p>
+    {{/if}}
+</body>
+
+<a href="/logout">Logout</a>
+
+
+</html>

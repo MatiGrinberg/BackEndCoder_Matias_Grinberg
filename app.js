@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require("express-session");
 const exphbs = require("express-handlebars");
 const app = express();
 const http = require("http").createServer(app);
@@ -7,7 +8,17 @@ const port = 8080;
 app.engine("handlebars", exphbs.engine({ defaultLayout: false }));
 app.set("view engine", "handlebars");
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+const randomString = require("crypto").randomBytes(64).toString("hex");
+app.use(
+  session({
+    secret: randomString,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 const path = require("path");
+const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const connectionString =
   "mongodb+srv://MatiGrinberg:Fashion88@backendcoderhouse.pqnscj3.mongodb.net/ecommerce?retryWrites=true&w=majority";
@@ -37,6 +48,187 @@ io.on("connection", (socket) => {
     io.emit("productListUpdated", updatedProducts);
   });
 });
+
+// LOGIN/REGISTER
+const { User } = require("./dao/models/schemas");
+app.get("/", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/products");
+  }
+  res.render("../views/login.handlebars");
+});
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+    if (email === 'matigrin2@coder.com' && password === 'matigrincoder') {
+      user.role = 'admin';
+    }
+    req.session.user = user;
+    req.session.fromLogin = true;
+    res.redirect("/products");
+  } catch (error) {
+    res.status(500).json({ error: "Error logging in" });
+  }
+});
+
+app.get("/signup", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/products");
+  }
+  res.render("../views/signup.handlebars");
+});
+
+app.post("/signup", async (req, res) => {
+  try {
+    const { first_name, last_name, age, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+    const newUser = new User({ first_name, last_name, age, email, password });
+    await newUser.save();
+    res.render("../views/login.handlebars");
+  } catch (error) {
+    res.status(500).json({ error: "Error registering user" });
+  }
+});
+
+app.get("/profile", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+  res.render("../views/profile.handlebars", {
+    user: req.session.user,
+  });
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).json({ error: "Could not log out" });
+    }
+    res.redirect("/");
+  });
+});
+
+// PRODUCTS
+app.get("/realtimeproducts", async (req, res) => {
+  try {
+    const products = await productManager.getProducts();
+    if (!products) {
+      throw new Error("Products not found");
+    }
+    res.render("../views/realTimeProducts.handlebars", { products });
+  } catch (error) {
+    res.status(500).send("Error rendering products: " + error.message);
+  }
+});
+
+app
+  .route("/products")
+  .get(async (req, res) => {
+    try {
+      if (!req.session.user) {
+        return res.redirect("/");
+      }
+      let welcomeMessage = null;
+      if (req.session.fromLogin) {
+        req.session.fromLogin = false;
+        req.session.user.welcomeMessage = `Welcome, ${req.session.user.first_name} ${req.session.user.last_name}!`;
+        welcomeMessage = req.session.user.welcomeMessage;
+      }
+      const { limit = 10, page = 1, sort, query } = req.query;
+      let productsList = await productManager.getProducts();
+      const parsedLimit = parseInt(limit);
+      const parsedPage = parseInt(page);
+      const skip = parsedLimit * (parsedPage - 1);
+      const totalPages = Math.ceil(productsList.length / parsedLimit);
+      productsList = productsList.slice(skip, skip + parsedLimit);
+      if (sort === "asc") {
+        productsList = productsList.sort((a, b) => a.price - b.price);
+      } else if (sort === "desc") {
+        productsList = productsList.sort((a, b) => b.price - a.price);
+      }
+      if (query) {
+        productsList = productsList.filter(
+          (product) => product.category === query
+        );
+      }
+      const hasNextPage = parsedPage < totalPages;
+      const hasPrevPage = parsedPage > 1;
+      const nextPage = hasNextPage ? parsedPage + 1 : null;
+      const prevPage = hasPrevPage ? parsedPage - 1 : null;
+      const prevLink = hasPrevPage
+        ? `/products?limit=${limit}&page=${prevPage}`
+        : null;
+      const nextLink = hasNextPage
+        ? `/products?limit=${limit}&page=${nextPage}`
+        : null;
+      res.render("../views/products.handlebars", {
+        welcomeMessage,
+        products: productsList,
+        jsonData: JSON.stringify({
+          status: "success",
+          //payload: productsList,
+          totalPages,
+          prevPage,
+          nextPage,
+          page: parsedPage,
+          hasPrevPage,
+          hasNextPage,
+          prevLink,
+          nextLink,
+        }),
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Error fetching products: " + error.message,
+      });
+    }
+  })
+  .post(async (req, res) => {
+    const newProduct = req.body;
+    productManager.addProduct(newProduct);
+    io.emit("productUpdate");
+    res.json({ message: "Product added successfully" });
+  });
+
+app
+  .route("/products/:id")
+  .get(async (req, res) => {
+    const productId = req.params.id;
+    try {
+      const product = await productManager.getProductById(productId);
+      if (product) {
+        res.json({ status: "success", payload: product });
+      } else {
+        res.status(404).json({ status: "error", message: "Product not found" });
+      }
+    } catch (error) {
+      res
+        .status(500)
+        .json({ status: "error", message: "Error fetching product by ID" });
+    }
+  })
+  .put(async (req, res) => {
+    const productId = req.params.id;
+    const updatedFields = req.body;
+    productManager.updateProduct(productId, updatedFields);
+    io.emit("productUpdate");
+    res.json({ message: "Product updated successfully" });
+  })
+  .delete(async (req, res) => {
+    const productId = req.params.id;
+    productManager.deleteProduct(productId);
+    io.emit("productUpdate");
+    res.json({ message: "Product deleted successfully" });
+  });
 
 // CARTS
 app
@@ -77,7 +269,6 @@ app
   .put(async (req, res) => {
     const cartId = req.params.cid;
     const updatedProducts = req.body.products;
-    console.log("Form body", updatedProducts);
     try {
       const success = await cartManager.updateCartWithProducts(
         cartId,
@@ -190,111 +381,6 @@ app
         .status(500)
         .json({ status: "error", message: "Internal Server Error" });
     }
-  });
-
-// PRODUCTS
-app.get("/realtimeproducts", async (req, res) => {
-  try {
-    const products = await productManager.getProducts();
-    if (!products) {
-      throw new Error("Products not found");
-    }
-    res.render("../views/realTimeProducts.handlebars", { products });
-    console.log(products);
-  } catch (error) {
-    res.status(500).send("Error rendering products: " + error.message);
-  }
-});
-
-app
-  .route("/products")
-  .get(async (req, res) => {
-    try {
-      const { limit = 10, page = 1, sort, query } = req.query;
-      let productsList = await productManager.getProducts();
-      const parsedLimit = parseInt(limit);
-      const parsedPage = parseInt(page);
-      const skip = parsedLimit * (parsedPage - 1);
-      const totalPages = Math.ceil(productsList.length / parsedLimit);
-      productsList = productsList.slice(skip, skip + parsedLimit);
-      if (sort === "asc") {
-        productsList = productsList.sort((a, b) => a.price - b.price);
-      } else if (sort === "desc") {
-        productsList = productsList.sort((a, b) => b.price - a.price);
-      }
-      if (query) {
-        productsList = productsList.filter(
-          (product) => product.category === query
-        );
-      }
-      const hasNextPage = parsedPage < totalPages;
-      const hasPrevPage = parsedPage > 1;
-      const nextPage = hasNextPage ? parsedPage + 1 : null;
-      const prevPage = hasPrevPage ? parsedPage - 1 : null;
-      const prevLink = hasPrevPage
-        ? `/products?limit=${limit}&page=${prevPage}`
-        : null;
-      const nextLink = hasNextPage
-        ? `/products?limit=${limit}&page=${nextPage}`
-        : null;
-      res.render("../views/products.handlebars", {
-        products: productsList,
-        jsonData: JSON.stringify({
-          status: "success",
-          //payload: productsList,
-          totalPages,
-          prevPage,
-          nextPage,
-          page: parsedPage,
-          hasPrevPage,
-          hasNextPage,
-          prevLink,
-          nextLink,
-        }),
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: "Error fetching products: " + error.message,
-      });
-    }
-  })
-  .post(async (req, res) => {
-    const newProduct = req.body;
-    productManager.addProduct(newProduct);
-    io.emit("productUpdate");
-    res.json({ message: "Product added successfully" });
-  });
-
-app
-  .route("/products/:id")
-  .get(async (req, res) => {
-    const productId = req.params.id;
-    try {
-      const product = await productManager.getProductById(productId);
-      if (product) {
-        res.json({ status: "success", payload: product });
-      } else {
-        res.status(404).json({ status: "error", message: "Product not found" });
-      }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Error fetching product by ID" });
-    }
-  })
-  .put(async (req, res) => {
-    const productId = req.params.id;
-    const updatedFields = req.body;
-    productManager.updateProduct(productId, updatedFields);
-    io.emit("productUpdate");
-    res.json({ message: "Product updated successfully" });
-  })
-  .delete(async (req, res) => {
-    const productId = req.params.id;
-    productManager.deleteProduct(productId);
-    io.emit("productUpdate");
-    res.json({ message: "Product deleted successfully" });
   });
 
 // MESSAGES

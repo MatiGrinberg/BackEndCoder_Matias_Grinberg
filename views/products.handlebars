@@ -1,4 +1,13 @@
 <h1>Products</h1>
+<h2>Got to your profile</h2>
+<a href="/profile">Visit your profile</a>
+
+{{#if welcomeMessage}}
+  <div id="welcomeMessage">
+    <p>{{welcomeMessage}}</p>
+    <button onclick="dismissWelcome()">OK</button>
+  </div>
+{{/if}}
 
 {{#each products}}
   <!-- Display product information -->
@@ -15,8 +24,12 @@
   </form>
 {{/each}}
 
+<a href="/logout">Logout</a>
+
 <script>
-  // Extract JSON data from the script tag or data attribute const jsonData =
+  function dismissWelcome() {
+  document.getElementById('welcomeMessage').style.display = 'none'; };
+  //Extract JSON data from the script tag or data attribute const jsonData =
   JSON.parse('{{jsonData}}'); // Use the jsonData object as needed
   console.log(jsonData);
 </script>

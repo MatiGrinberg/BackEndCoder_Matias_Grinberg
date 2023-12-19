@@ -8,7 +8,7 @@ class CartManager {
 
   async getCartById(cartId) {
     try {
-      const cart = await Cart.findById(cartId).populate("products").lean();
+      const cart = await Cart.findById(cartId).populate("products._id").lean();
       return cart;
     } catch (error) {
       console.error("Error fetching cart:", error.message);
