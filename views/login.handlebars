@@ -10,8 +10,18 @@
     <form action="/login" method="post">
     <input type="text" name="email" placeholder="email">
     <input type="text" name="password" placeholder="password">
-    <input type="submit">
+    <input type="submit" value="Log In">
     </form>
+    <a href="/auth/github">Login with GitHub</a>
     <a href="/signup">Make a new account</a>
+    {{#if messages}}
+        <div class="error">
+            {{#each messages}}
+                <p>{{this}}</p>
+            {{/each}}
+        </div>
+    {{/if}}
+    
 </body>
 </html>
+

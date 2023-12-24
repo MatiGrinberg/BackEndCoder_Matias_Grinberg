@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   last_name: {
     type: String,
     required: true,
+    default: null,
   },
   age: {
     type: Number,
@@ -55,6 +56,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     lowercase: true,
+    default: null,
     validate: [validator.isEmail, "Invalid email"],
   },
   password: {
@@ -66,6 +68,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'usuario'], 
     default: 'usuario', 
+  },
+  githubId: {
+    type: String,
+    unique: true,
   },
 });
 

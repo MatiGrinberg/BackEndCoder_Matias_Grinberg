@@ -22,6 +22,10 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const connectionString =
   "mongodb+srv://MatiGrinberg:Fashion88@backendcoderhouse.pqnscj3.mongodb.net/ecommerce?retryWrites=true&w=majority";
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const flash = require("express-flash");
+const GitHubStrategy = require("passport-github").Strategy;
 
 // Connect MongoDB
 mongoose.connect(connectionString, {
@@ -49,34 +53,108 @@ io.on("connection", (socket) => {
   });
 });
 
-// LOGIN/REGISTER
+// Configure Passport
 const { User } = require("./dao/models/schemas");
+
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email" },
+    async (email, password, done) => {
+      try {
+        const user = await User.findOne({ email });
+        if (!user) {
+          return done(null, false, { message: "Incorrect Email" });
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          return done(null, false, { message: "Incorrect Password" });
+        }
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: "bf5580ef8d8c0f409f76",
+      clientSecret: "63b44a93f79c1d96e28023e3bbe8feeb206cbfa8",
+      callbackURL: "http://localhost:8080/auth/github/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const existingUser = await User.findOne({ githubId: profile.id });
+        if (existingUser) {
+          return done(null, existingUser);
+        } else {
+          const newUser = new User({
+            first_name: profile.displayName,
+            last_name: 'G',
+            age: 100,
+            email: '100G@gmail.com',
+            password: 'githublogin',
+            githubId: profile.id,
+          });
+          await newUser.save();
+          return done(null, newUser);
+        }
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+
+// LOGIN/REGISTER
+app.get("/auth/github", passport.authenticate("github"));
+
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", {
+    successRedirect: "/products",
+    failureRedirect: "/",
+  })
+);
+
 app.get("/", (req, res) => {
-  if (req.session.user) {
+  if (req.isAuthenticated()) {
     return res.redirect("/products");
   }
   res.render("../views/login.handlebars");
 });
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || user.password !== password) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-    if (email === 'matigrin2@coder.com' && password === 'matigrincoder') {
-      user.role = 'admin';
-    }
-    req.session.user = user;
-    req.session.fromLogin = true;
-    res.redirect("/products");
-  } catch (error) {
-    res.status(500).json({ error: "Error logging in" });
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/products",
+    failureRedirect: "/",
+    failureFlash: true,
+  }),
+  (req, res) => {
+    res.render("../views/login.handlebars", { messages: req.flash("error") });
   }
-});
+);
 
 app.get("/signup", (req, res) => {
-  if (req.session.user) {
+  if (req.isAuthenticated()) {
     return res.redirect("/products");
   }
   res.render("../views/signup.handlebars");
@@ -89,30 +167,40 @@ app.post("/signup", async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: "Email already exists" });
     }
-    const newUser = new User({ first_name, last_name, age, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      first_name,
+      last_name,
+      age,
+      email,
+      password: hashedPassword,
+    });
     await newUser.save();
-    res.render("../views/login.handlebars");
+    res.redirect("/");
   } catch (error) {
     res.status(500).json({ error: "Error registering user" });
   }
 });
 
 app.get("/profile", (req, res) => {
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/");
   }
+  const userData = req.user.toObject();
   res.render("../views/profile.handlebars", {
-    user: req.session.user,
+    user_d: userData,
   });
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session:", err);
-      return res.status(500).json({ error: "Could not log out" });
-    }
-    res.redirect("/");
+  req.logout(() => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ error: "Could not log out" });
+      }
+      res.redirect("/");
+    });
   });
 });
 
@@ -133,14 +221,8 @@ app
   .route("/products")
   .get(async (req, res) => {
     try {
-      if (!req.session.user) {
+      if (!req.isAuthenticated()) {
         return res.redirect("/");
-      }
-      let welcomeMessage = null;
-      if (req.session.fromLogin) {
-        req.session.fromLogin = false;
-        req.session.user.welcomeMessage = `Welcome, ${req.session.user.first_name} ${req.session.user.last_name}!`;
-        welcomeMessage = req.session.user.welcomeMessage;
       }
       const { limit = 10, page = 1, sort, query } = req.query;
       let productsList = await productManager.getProducts();
@@ -170,7 +252,6 @@ app
         ? `/products?limit=${limit}&page=${nextPage}`
         : null;
       res.render("../views/products.handlebars", {
-        welcomeMessage,
         products: productsList,
         jsonData: JSON.stringify({
           status: "success",
