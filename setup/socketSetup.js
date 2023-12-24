@@ -18,7 +18,4 @@ function setupSocket(server) {
   return io;
 }
 
-
-
-// import ProductManager
 module.exports = setupSocket;
