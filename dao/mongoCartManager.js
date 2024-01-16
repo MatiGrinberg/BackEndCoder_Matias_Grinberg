@@ -94,10 +94,13 @@ class CartManager {
     }
   }
 
-  async createCart() {
+  async createCart(req) {
     try {
+      if (!req.isAuthenticated()) {
+        return null;
+      }
       const newCart = await Cart.create({
-        userId: "user_id",
+        userId: req.user._id,
         products: [],
       });
       return newCart;

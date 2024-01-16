@@ -7,8 +7,12 @@ const cartManager = new CartManager();
 router
   .route("/")
   .post(async (req, res) => {
-    const newCart = cartManager.createCart();
-    res.json({ message: "New cart created", cart: newCart });
+    const newCart = await cartManager.createCart(req);
+    if (newCart) {
+      res.json({ message: "New cart created", cart: newCart });
+    } else {
+      res.status(401).json({ message: "User not authenticated" });
+    }
   })
   .get(async (req, res) => {
     try {

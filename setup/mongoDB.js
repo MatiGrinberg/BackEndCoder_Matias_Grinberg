@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const connectionString ="mongodb+srv://MatiGrinberg:Fashion88@backendcoderhouse.pqnscj3.mongodb.net/ecommerce?retryWrites=true&w=majority";
+const connectionString = process.env.MONGO_URI
 
 mongoose.connect(connectionString, {
   useNewUrlParser: true,

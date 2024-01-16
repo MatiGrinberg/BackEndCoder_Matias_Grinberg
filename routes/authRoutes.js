@@ -2,6 +2,8 @@ const express = require('express');
 const passport = require('./passportConfig');
 const flash = require('express-flash');
 const router = express.Router();
+const { User } = require("../dao/models/schemas");
+const bcrypt = require('bcrypt');
 
 
 // Github
@@ -60,6 +62,7 @@ router
     await newUser.save();
     res.redirect("/");
   } catch (error) {
+    console.error("Error registering user:", error);
     res.status(500).json({ error: "Error registering user" });
   }
 });

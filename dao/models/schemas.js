@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+
 // Schema for the 'products' collection
 const productSchema = new mongoose.Schema({
   title: String,
@@ -13,6 +14,7 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.model("products", productSchema);
 
+
 // Schema for the 'messages' collection
 const messageSchema = new mongoose.Schema({
   sender: String,
@@ -21,9 +23,11 @@ const messageSchema = new mongoose.Schema({
 });
 const Message = mongoose.model("messages", messageSchema);
 
+
 // Schema for the 'carts' collection
 const cartSchema = new mongoose.Schema({
-  userId: String,
+  //userId: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   products: [
     {
       productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
@@ -33,6 +37,8 @@ const cartSchema = new mongoose.Schema({
 });
 const Cart = mongoose.model("carts", cartSchema);
 
+
+// Schema for the 'users' collection
 const userSchema = new mongoose.Schema({
   first_name: {
     type: String,
@@ -74,8 +80,8 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
 });
-
 const User = mongoose.model("users", userSchema);
+
 
 module.exports = {
   Product,
