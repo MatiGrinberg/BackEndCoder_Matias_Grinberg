@@ -1,7 +1,4 @@
-const { Cart } = require("./models/schemas");
-const { Product } = require("./models/schemas");
-const { Types } = require("mongoose");
-const mongoose = require("mongoose");
+const { Cart } = require("./schemas");
 
 class CartManager {
   constructor() {}

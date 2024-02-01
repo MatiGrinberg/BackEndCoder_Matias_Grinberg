@@ -1,5 +1,5 @@
 const socketIO = require("socket.io");
-const ProductManager = require("../dao/mongoProductManager");
+const ProductManager = require("../dao/ProductManager");
 
 // WebSocket setup using Socket.io
 function setupSocket(server) {

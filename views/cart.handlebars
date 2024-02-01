@@ -1,21 +1,70 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Cart Details</title>
-  </head>
-  <body>
-    <h1>Cart Details</h1>
-    <h2>Cart ID: {{cart._id}}</h2>
-    <p>User ID: {{cart.userId}}</p>
-    <h3>Products in Cart:</h3>
-    <ul>
-      {{#each cart.products}}
-        <li>
-          <p>Product ID: {{this._id}}</p>
-          <p>Quantity: {{this.quantity}}</p>
-          <p>Title: {{this.title}}</p>
-        </li>
-      {{/each}}
-    </ul>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        h2, h3 {
+            color: #555;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .cart-summary {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Shopping Cart</h1>
+    
+    <div class="cart-summary">
+        <h2>Cart ID: {{cart._id}}</h2>
+        <p>User ID: {{cart.userId}}</p>
+        
+        <h3>Products in Cart:</h3>
+        <ul>
+            {{#each cart.products}}
+                <li>
+                    <p>Product ID: {{this._id}}</p>
+                    <p>Quantity: {{this.quantity}}</p>
+                </li>
+            {{/each}}
+        </ul>
+        
+        {{!--<p><strong>Total Price: ${{cart.totalPrice}}</strong></p>--}}
+    </div>
+
+    <a href="/">Home</a>
+</body>
 </html>

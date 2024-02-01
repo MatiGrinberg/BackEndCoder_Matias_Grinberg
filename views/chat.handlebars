@@ -1,14 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        li span {
+            color: #888;
+            font-size: 12px;
+            display: block; /* Display the timestamp on a new line */
+        }
+    </style>
 </head>
 <body>
-  <h1>Chat Messages</h1>
-  <ul>
-    {{#each messages}}
-      <li>{{this.sender}}: ({{this.timestamp}})</li>
-    {{/each}}
-  </ul>
+    <a href="/profile">Profile</a>
+    <h1>Chat Messages</h1>
+    <ul>
+        {{#each messages}}
+            <li>
+                <span>{{this.sender}}</span>
+                <span>{{this.content}}</span>
+                <span>{{this.timestamp}}</span>
+            </li>
+        {{/each}}
+    </ul>
 </body>
 </html>

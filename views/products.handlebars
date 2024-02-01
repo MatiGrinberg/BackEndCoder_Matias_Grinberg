@@ -1,35 +1,108 @@
-<h1>Products</h1>
-<h2>Got to your profile</h2>
-<a href="/profile">Visit your profile</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            margin: 20px;
+            text-align: center;
+        }
 
-{{#if welcomeMessage}}
-  <div id="welcomeMessage">
-    <p>{{welcomeMessage}}</p>
-    <button onclick="dismissWelcome()">OK</button>
-  </div>
-{{/if}}
+        h1 {
+            color: #333;
+        }
 
-{{#each products}}
-  <!-- Display product information -->
-  <h3>{{this.name}}</h3>
-  <p>{{this.description}}</p>
-  <p>Price: ${{this.price}}</p>
-  <!-- Add button to add product to cart -->
-  <form
-    action="/carts/657590c3cc1469187ebe231f/product/{{this._id}}"
-    method="POST"
-  >
-    <input type="hidden" name="quantity" value="1" />
-    <button type="submit">Add to Cart</button>
-  </form>
-{{/each}}
+        h2 {
+            color: #555;
+            margin-top: 10px;
+        }
 
-<a href="/logout">Logout</a>
+        a {
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 10px;
+            display: block;
+        }
 
-<script>
-  function dismissWelcome() {
-  document.getElementById('welcomeMessage').style.display = 'none'; };
-  //Extract JSON data from the script tag or data attribute const jsonData =
-  JSON.parse('{{jsonData}}'); // Use the jsonData object as needed
-  console.log(jsonData);
-</script>
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #welcomeMessage {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Additional styling for product information */
+        h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        p {
+            color: #555;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Products</h1>
+    <h2>Go to your profile</h2>
+    <a href="/profile">Visit your profile</a>
+
+    {{#if welcomeMessage}}
+        <div id="welcomeMessage">
+            <p>{{welcomeMessage}}</p>
+            <button onclick="dismissWelcome()">OK</button>
+        </div>
+    {{/if}}
+
+    {{#each products}}
+        <!-- Display product information -->
+        <h3>{{this.title}}</h3>
+        <p>{{this.description}}</p>
+        <p>Price: ${{this.price}}</p>
+        <!-- Add button to add product to cart -->
+        <form action="/carts/657590c3cc1469187ebe231f/product/{{this._id}}" method="POST">
+            <input type="hidden" name="quantity" value="1" />
+            <button type="submit">Add to Cart</button>
+        </form>
+    {{/each}}
+
+    <a href="/logout">Logout</a>
+
+    <script>
+        function dismissWelcome() {
+            document.getElementById('welcomeMessage').style.display = 'none';
+        }
+        // Extract JSON data from the script tag or data attribute
+        const jsonData = JSON.parse('{{jsonData}}');
+        // Use the jsonData object as needed
+        console.log(jsonData);
+    </script>
+</body>
+</html>
