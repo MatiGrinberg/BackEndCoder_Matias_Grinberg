@@ -1,4 +1,4 @@
-const { Cart } = require("./schemas");
+const { Cart } = require("./schemas/cartSchema");
 
 class CartManager {
   constructor() {}
@@ -9,6 +9,33 @@ class CartManager {
       return cart;
     } catch (error) {
       console.error("Error fetching cart:", error.message);
+      return null;
+    }
+  }
+
+  async hasCart(userId) {
+    try {
+      const cart = await Cart.findOne({ userId }).lean();
+      return cart || null;
+    } catch (error) {
+      console.error("Error checking for cart:", error.message);
+      return null;
+    }
+  }
+
+
+  async createCart(req) {
+    try {
+      if (!req.isAuthenticated()) {
+        return null;
+      }
+      const newCart = await Cart.create({
+        userId: req.user._id,
+        products: [],
+      });
+      return newCart;
+    } catch (error) {
+      console.error("Error creating cart:", error.message);
       return null;
     }
   }
@@ -91,22 +118,7 @@ class CartManager {
     }
   }
 
-  async createCart(req) {
-    try {
-      if (!req.isAuthenticated()) {
-        return null;
-      }
-      const newCart = await Cart.create({
-        userId: req.user._id,
-        products: [],
-      });
-      return newCart;
-    } catch (error) {
-      console.error("Error creating cart:", error.message);
-      return null;
-    }
-  }
-
+  
   async updateCartWithProducts(cartId, products) {
     try {
       const cart = await Cart.findById(cartId);

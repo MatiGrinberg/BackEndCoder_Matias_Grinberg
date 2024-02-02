@@ -3,6 +3,20 @@ const router = express.Router();
 const cartService = require("../services/CartServices");
 
 // Carts
+
+router
+  .route("/:cid/purchase")
+  .get(async (req, res) => {
+    await cartService.handlePurchaseCart(req, res);
+  });
+
+router
+  .route("/:cid/payment")
+  .post(async (req, res) => {
+    await cartService.handlePaymentCart(req, res);
+  });
+
+
 router
   .route("/")
   .post(async (req, res) => {

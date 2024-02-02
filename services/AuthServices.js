@@ -1,7 +1,7 @@
 const passport = require('../routes/passportConfig');
 const flash = require('express-flash');
-const { User } = require("../dao/schemas");
 const bcrypt = require('bcrypt');
+const { User } = require("../dao/schemas/userSchema");
 
 class AuthServices {
   async githubAuthRedirect(req, res) {

@@ -1,5 +1,7 @@
 const ProductManager = require("../dao/ProductManager");
 const productManager = new ProductManager();
+const cartService = require("../services/CartServices");
+
 
 class ProductServices {
   async getAllProducts(req, res) {
@@ -24,6 +26,8 @@ class ProductServices {
           (product) => product.category === query
         );
       }
+      let cart = await cartService.getCartByUserId(req.user._id);
+      console.log(cart); 
       const hasNextPage = parsedPage < totalPages;
       const hasPrevPage = parsedPage > 1;
       const nextPage = hasNextPage ? parsedPage + 1 : null;
@@ -35,6 +39,7 @@ class ProductServices {
         ? `/products?limit=${limit}&page=${nextPage}`
         : null;
       res.render("../views/products.handlebars", {
+        cart: cart,
         products: productsList,
         jsonData: JSON.stringify({
           status: "success",
