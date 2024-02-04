@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const exphbs = require("express-handlebars");
+const methodOverride = require("method-override"); // Import the method-override middleware
 
 function setupApp() {
   const app = express();
@@ -8,6 +9,7 @@ function setupApp() {
   app.set("view engine", "handlebars");
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
+  app.use(methodOverride("_method"));
   const randomString = require("crypto").randomBytes(64).toString("hex");
   app.use(
     session({
@@ -16,7 +18,6 @@ function setupApp() {
       saveUninitialized: true,
     })
   );
-
   return app;
 }
 

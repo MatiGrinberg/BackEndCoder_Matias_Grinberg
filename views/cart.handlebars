@@ -1,70 +1,52 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shopping Cart</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        h2, h3 {
-            color: #555;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #fff;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        p {
-            margin: 0;
-        }
-
-        .cart-summary {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      body { font-family: Arial, sans-serif; margin: 20px; background-color:
+      #f4f4f4; } h1 { color: #333; text-align: center; } h2, h3 { color: #555; }
+      ul { list-style-type: none; padding: 0; } li { background-color: #fff;
+      margin-bottom: 10px; padding: 10px; border-radius: 5px; box-shadow: 0 2px
+      4px rgba(0, 0, 0, 0.1); } p { margin: 0; } .cart-summary {
+      background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0
+      4px 8px rgba(0, 0, 0, 0.1); } /* Styling for buttons */ .button-container
+      { text-align: center; margin-top: 20px; } .button-container a,
+      .button-container button { display: inline-block; padding: 10px 20px;
+      margin-right: 10px; text-decoration: none; color: #fff; border-radius:
+      5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+      .button-container a { background-color: #007bff; } .button-container
+      button { background-color: #28a745; border: none; } .button-container
+      a:hover, .button-container button:hover { background-color: #0056b3; }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Shopping Cart</h1>
-    
+
     <div class="cart-summary">
-        <h2>Cart ID: {{cart._id}}</h2>
-        <p>User ID: {{cart.userId}}</p>
-        
-        <h3>Products in Cart:</h3>
-        <ul>
-            {{#each cart.products}}
-                <li>
-                    <p>Product ID: {{this._id}}</p>
-                    <p>Quantity: {{this.quantity}}</p>
-                </li>
-            {{/each}}
-        </ul>
-        
-        {{!--<p><strong>Total Price: ${{cart.totalPrice}}</strong></p>--}}
+      <h2>Cart ID: {{cart._id}}</h2>
+      <p>User ID: {{cart.userId._id}}</p>
+
+      <h3>Products in Cart:</h3>
+      <ul>
+        {{#each cart.products}}
+          <li>
+            <p>Product ID: {{this._id._id}}</p>
+            <p>Quantity: {{this.quantity}}</p>
+            <p>Price: ${{this._id.price}}</p>
+            <p>Title: {{this._id.title}}</p>
+          </li>
+        {{/each}}
+      </ul>
+
+      <p><strong>Total Price: ${{cart.totalPrice}}</strong></p>
     </div>
 
-    <a href="/">Home</a>
-</body>
+    <div class="button-container">
+      <a href="/">Home</a>
+      <form action="/carts/{{cart._id}}/purchase" method="POST">
+        <button type="submit">Purchase</button>
+      </form>
+    </div>
+  </body>
 </html>

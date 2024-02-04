@@ -1,11 +1,52 @@
-const { Cart } = require("./schemas/cartSchema");
+const Product = require("./schemas/productSchema");
+const Cart = require("./schemas/cartSchema");
+const Order = require("./schemas/orderSchema");
 
 class CartManager {
-  constructor() {}
+  async generateOrder(stockSplit) {
+    try {
+      const {
+        userId: { _id: userId, email: purchaser },
+        code,
+        amount,
+        inStock,
+      } = stockSplit;
+
+      const orderDetails = {
+        userId,
+        code,
+        amount,
+        purchaser,
+        products: inStock,
+      };
+
+      const order = new Order(orderDetails);
+      await order.save();
+
+      return order;
+    } catch (error) {
+      console.error("Error generating order:", error.message);
+    }
+  }
 
   async getCartById(cartId) {
     try {
-      const cart = await Cart.findById(cartId).populate("products._id").lean();
+      const cart = await Cart.findById(cartId)
+        .populate({
+          path: "products._id",
+          model: "products",
+          select: "price title stock",
+        })
+        .populate({
+          path: "userId",
+          model: "users",
+          select: "email",
+        })
+        .lean();
+      const totalPrice = cart.products.reduce((total, product) => {
+        return total + product.quantity * product._id.price;
+      }, 0);
+      cart.totalPrice = totalPrice;
       return cart;
     } catch (error) {
       console.error("Error fetching cart:", error.message);
@@ -22,7 +63,6 @@ class CartManager {
       return null;
     }
   }
-
 
   async createCart(req) {
     try {
@@ -51,14 +91,17 @@ class CartManager {
         console.error("Quantity not provided");
         return false;
       }
-      const existingProduct = cart.products.find(
+
+      const existingProductIndex = cart.products.findIndex(
         (item) => item._id.toString() === productId.toString()
       );
-      if (existingProduct) {
-        existingProduct.quantity += quantity;
+
+      if (existingProductIndex !== -1) {
+        cart.products[existingProductIndex].quantity += parseInt(quantity);
       } else {
-        cart.products.push({ _id: productId, quantity });
+        cart.products.push({ _id: productId, quantity: parseInt(quantity) });
       }
+
       await cart.save();
       return true;
     } catch (error) {
@@ -90,6 +133,29 @@ class CartManager {
     }
   }
 
+  async deleteManyProductFromCart(cartId, productIds) {
+    try {
+      const deletionResults = await Promise.all(
+        productIds.map(async (productId) => {
+          return await this.deleteProductFromCart(cartId, productId);
+        })
+      );
+      const allDeletionsSuccessful = deletionResults.every((result) => result);
+      if (allDeletionsSuccessful) {
+        const updatedCart = await this.getCartById(cartId);
+        return updatedCart;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error(
+        "Error deleting multiple products from cart:",
+        error.message
+      );
+      return null;
+    }
+  }
+
   async deleteProductFromCart(cartId, productId) {
     try {
       const cart = await Cart.findById(cartId);
@@ -118,7 +184,6 @@ class CartManager {
     }
   }
 
-  
   async updateCartWithProducts(cartId, products) {
     try {
       const cart = await Cart.findById(cartId);
@@ -126,7 +191,6 @@ class CartManager {
         console.error("Cart not found");
         return false;
       }
-      console.log(products);
       cart.products = products;
       await cart.save();
       return true;

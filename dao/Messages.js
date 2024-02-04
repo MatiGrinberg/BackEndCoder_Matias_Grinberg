@@ -1,4 +1,4 @@
-const { Message } = require('./schemas/messageSchema');
+const Message = require('./schemas/messageSchema');
 
 class MessageManager {
   static async getAllMessages() {

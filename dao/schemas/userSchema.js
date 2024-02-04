@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-
 const userSchema = new mongoose.Schema({
   first_name: {
     type: String,
@@ -34,8 +33,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'usuario'],
-    default: 'usuario',
+    enum: ["admin", "usuario"],
+    default: "usuario",
   },
   githubId: {
     type: String,
@@ -45,7 +44,4 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("users", userSchema);
 
-module.exports = {User};
-
-
-
+module.exports = User;

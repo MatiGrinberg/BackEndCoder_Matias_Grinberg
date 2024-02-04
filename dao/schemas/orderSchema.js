@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
+console.log("Loading Order Schema...");
 const User = require("./userSchema");
 const Product = require("./productSchema");
 
 const orderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   code: {
     type: String,
     required: true,
@@ -30,4 +32,4 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model("orders", orderSchema);
 
-module.exports = { Order };
+module.exports = Order;

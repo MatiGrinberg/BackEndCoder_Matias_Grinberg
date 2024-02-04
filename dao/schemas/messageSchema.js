@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+console.log("Loading Message Schema...");
 const messageSchema = new mongoose.Schema({
   sender: String,
   content: String,
@@ -8,4 +8,4 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model("messages", messageSchema);
 
-module.exports = {Message};
+module.exports = Message;

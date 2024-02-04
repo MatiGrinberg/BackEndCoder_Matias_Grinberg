@@ -1,8 +1,27 @@
 const CartManager = require("../dao/CartManager.js");
 const cartManager = new CartManager();
+const ProductManager = require("../dao/ProductManager");
+const productManager = new ProductManager();
 const stripe = require("stripe")(process.env.STRIPE_SERVER_SECRET);
+const { stockCart } = require("../middleware/auxiliaryCartFunctions");
 
 class CartServices {
+  async handlePurchaseCart(req, res) {
+    const cartId = req.params.cid;
+    try {
+      let cart = await cartManager.getCartById(cartId);
+      const stockSplit = await stockCart(cart);
+      const order = await cartManager.generateOrder(stockSplit);
+      const productsIds = order.products.map((product) => product._id._id);
+      cart = await cartManager.deleteManyProductFromCart(cart._id, productsIds);
+      const orderObject = order.toObject();
+      res.render("../views/purchase.handlebars", { orderObject, cart });
+      return;
+    } catch (error) {
+      console.error("Error in Purchase:", error.message);
+      res.status(500).send("Internal Server Error");
+    }
+  }
 
   async handlePaymentCart(req, res) {
     try {
@@ -18,30 +37,27 @@ class CartServices {
     }
   }
 
-  async handlePurchaseCart(req, res) {
-
-
-  }
-
   async getCartByUserId(userId) {
-  try {
+    try {
       const cart = await cartManager.hasCart(userId);
       return cart;
-  } catch (error) {
+    } catch (error) {
       console.error("Error getting cart by user ID:", error.message);
       return null;
+    }
   }
-}
-
 
   async handleCreateCart(req, res) {
     try {
       const newCart = await cartManager.createCart(req);
+
       if (newCart) {
-        return newCart;
-    } else {
-        return null;
-    }  
+        res.redirect("/products");
+      } else {
+        res
+          .status(500)
+          .json({ status: "error", message: "Error creating cart" });
+      }
     } catch (error) {
       console.error("Error creating cart:", error.message);
       res
@@ -50,17 +66,10 @@ class CartServices {
     }
   }
 
-
-
   async handleGetAllCarts(req, res) {
     try {
-      const allCarts = await cartManager.getAllCarts();
-      const totalPages = Math.ceil(allCarts.length / 10);
-      res.json({
-        status: "success",
-        payload: allCarts,
-        totalPages,
-      });
+      const allCarts = await cartManager.hasCart(req.user._id);
+      res.render("../views/carts.handlebars", { allCarts });
     } catch (error) {
       res
         .status(500)
@@ -140,7 +149,7 @@ class CartServices {
         quantity
       );
       if (success) {
-        res.json({ message: "Product added to cart successfully" });
+        res.redirect("/products");
       } else {
         res.status(404).json({
           error: "Cart or Product not found or addition failed",
@@ -162,7 +171,7 @@ class CartServices {
         productId
       );
       if (success) {
-        res.json({ status: "success", message: "Product deleted from cart" });
+        res.redirect("/products");
       } else {
         res.status(404).json({
           status: "error",

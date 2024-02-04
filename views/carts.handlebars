@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Carts</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carts for this logged-in user</h1>
+
+    {{#if allCarts}}
+        <h2>Cart ID: {{allCarts._id}}</h2>
+        <p>Number of Products: {{allCarts.products.length}}</p>
+        <hr>
+    {{else}}
+        <!-- If no carts, display form to create a new one -->
+        <form action="/carts" method="POST">
+            <button type="submit">Create New Cart</button>
+        </form>
+    {{/if}}
+
+    <!-- Button to go to "/products" -->
+    <a href="/products"><button>Go to Products</button></a>
+</body>
+</html>

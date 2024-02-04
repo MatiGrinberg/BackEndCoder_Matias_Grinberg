@@ -1,7 +1,7 @@
 const passport = require('../routes/passportConfig');
 const flash = require('express-flash');
 const bcrypt = require('bcrypt');
-const { User } = require("../dao/schemas/userSchema");
+const User = require("../dao/schemas/userSchema");
 
 class AuthServices {
   async githubAuthRedirect(req, res) {
@@ -13,7 +13,7 @@ class AuthServices {
 
   async localLogin(req, res) {
     return passport.authenticate("local", {
-      successRedirect: "/products",
+      successRedirect: "/carts",
       failureRedirect: "/",
       failureFlash: true,
     })(req, res);

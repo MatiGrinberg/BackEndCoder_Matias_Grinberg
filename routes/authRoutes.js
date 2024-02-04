@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const AuthServices = require("../services/AuthServices");
 
@@ -9,7 +9,6 @@ router.get("/auth/github", async (req, res) => {
 router.get("/", async (req, res) => {
   await AuthServices.renderLoginOrRedirect(req, res);
 });
-
 
 router.post("/login", async (req, res) => {
   await AuthServices.localLogin(req, res);
@@ -23,7 +22,6 @@ router
   .post(async (req, res) => {
     await AuthServices.localSignup(req, res);
   });
-
 
 router.get("/profile", async (req, res) => {
   await AuthServices.getProfile(req, res);

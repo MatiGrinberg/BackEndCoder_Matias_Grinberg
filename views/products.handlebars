@@ -5,21 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f8f8f8; margin: 20px; text-align: center; }
-        h1 { color: #333; }
-        h2 { color: #555; margin-top: 10px; }
-        a { color: #007bff; text-decoration: none; margin-top: 10px; display: inline-block; padding: 12px 24px; border: 2px solid #007bff; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
-        a:hover { background-color: #007bff; color: #fff; }
-        #welcomeMessage { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 5px; margin-top: 20px; }
-        button { background-color: #007bff; color: #fff; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        h3 { color: #333; margin-top: 20px; }
-        p { color: #555; }
-        form { margin-top: 10px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; justify-content: center; }
-        #profileLink, #logoutLink { margin-top: 10px; }
-        #profileLink:hover, #logoutLink:hover { background-color: #0056b3; color: #fff; }
-        #cartInfo { background-color: #f8f8f8; border: 2px solid #007bff; padding: 10px; border-radius: 5px; margin-top: 20px; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #555;
+            margin-top: 10px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+            padding: 12px 24px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #welcomeMessage {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        p {
+            color: #555;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        /* Centered grid layout for products */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Style for profile and logout links */
+        #profileLink,
+        #logoutLink {
+            margin-top: 10px;
+        }
+
+        #profileLink:hover,
+        #logoutLink:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+
+        /* Style for cart information */
+        #cartInfo {
+            background-color: #f8f8f8;
+            border: 2px solid #007bff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        /* Style for product container */
+        .product-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        /* Style for buttons */
+        .product-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
     </style>
 </head>
 <body>
@@ -28,22 +123,40 @@
         <a id="profileLink" href="/profile">Profile</a>
         <a id="logoutLink" href="/logout">Logout</a>
     </div>
+
     <div class="product-grid">
         {{#each products}}
-            <h3>{{this.title}}</h3>
-            <p>{{this.description}}</p>
-            <p>Price: ${{this.price}}</p>
-            <form action="/carts/{{cart._id}}/product/{{this._id}}" method="POST">
-                <input type="hidden" name="quantity" value="1" />
-                <button type="submit">Add to Cart</button>
-            </form>
+            <div class="product-container">
+                <h3>{{this.title}}</h3>
+                <p>{{this.description}}</p>
+                <p>Price: ${{this.price}}</p>
+                <div class="product-buttons">
+                    <form action="/carts/{{../cart._id}}/product/{{this._id}}" method="POST">
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit">Add</button>
+                    </form>
+                    <button onclick="removeProductFromCart('{{../cart._id}}', '{{this._id}}')">Remove</button>
+                </div>
+            </div>
         {{/each}}
     </div>
+
     <div id="cartInfo">
         <h2>Your Cart</h2>
         <p>Cart ID: {{cart._id}}</p>
         <p>Number of Products: {{cart.products.length}}</p>
         <a href="/carts/{{cart._id}}">View Cart</a>
     </div>
+     <script>
+        async function removeProductFromCart(cartId, productId) {
+            try {
+                const response = await fetch(`/carts/${cartId}/product/${productId}`, {
+                    method: 'DELETE',
+                });
+            } catch (error) {
+                console.error('Error:', error.message);
+            }
+        }
+    </script>
 </body>
 </html>

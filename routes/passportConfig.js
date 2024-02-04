@@ -2,7 +2,7 @@ const passport = require("passport");
 const bcrypt = require("bcrypt");
 const LocalStrategy = require("passport-local").Strategy;
 const GitHubStrategy = require("passport-github").Strategy;
-const { User } = require("../dao/schemas/userSchema");
+const User = require("../dao/schemas/userSchema");
 
 
 // Local Session

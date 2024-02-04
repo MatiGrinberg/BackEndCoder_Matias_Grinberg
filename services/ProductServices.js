@@ -27,7 +27,6 @@ class ProductServices {
         );
       }
       let cart = await cartService.getCartByUserId(req.user._id);
-      console.log(cart); 
       const hasNextPage = parsedPage < totalPages;
       const hasPrevPage = parsedPage > 1;
       const nextPage = hasNextPage ? parsedPage + 1 : null;

@@ -6,7 +6,7 @@ const cartService = require("../services/CartServices");
 
 router
   .route("/:cid/purchase")
-  .get(async (req, res) => {
+  .post(async (req, res) => {
     await cartService.handlePurchaseCart(req, res);
   });
 
