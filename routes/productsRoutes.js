@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const ProductServices = require("../services/ProductServices");
+const roleMiddleware = require("../middleware/roleAuth");
 
 router
   .route("/")
   .get(async (req, res) => {
     await ProductServices.getAllProducts(req, res);
   })
-  .post(async (req, res) => {
+  .post(roleMiddleware(["admin"]), async (req, res) => {
     await ProductServices.addProduct(req, res);
   });
 
@@ -16,10 +17,10 @@ router
   .get(async (req, res) => {
     await ProductServices.getProductById(req, res);
   })
-  .put(async (req, res) => {
+  .put(roleMiddleware(["admin"]), async (req, res) => {
     await ProductServices.updateProduct(req, res);
   })
-  .delete(async (req, res) => {
+  .delete(roleMiddleware(["admin"]), async (req, res) => {
     await ProductServices.deleteProduct(req, res);
   });
 

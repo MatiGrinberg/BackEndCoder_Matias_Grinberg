@@ -1,21 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const cartService = require("../services/CartServices");
+const roleMiddleware = require("../middleware/roleAuth");
 
-// Carts
+router.route("/:cid/purchase").post(async (req, res) => {
+  await cartService.handlePurchaseCart(req, res);
+});
 
-router
-  .route("/:cid/purchase")
-  .post(async (req, res) => {
-    await cartService.handlePurchaseCart(req, res);
-  });
-
-router
-  .route("/:cid/payment")
-  .post(async (req, res) => {
-    await cartService.handlePaymentCart(req, res);
-  });
-
+router.route("/:cid/payment").post(async (req, res) => {
+  await cartService.handlePaymentCart(req, res);
+});
 
 router
   .route("/")
@@ -40,13 +34,13 @@ router
 
 router
   .route("/:cid/product/:pid")
-  .post(async (req, res) => {
+  .post(roleMiddleware(["usuario"]), async (req, res) => {
     await cartService.handleAddProductToCart(req, res);
   })
-  .delete(async (req, res) => {
+  .delete(roleMiddleware(["usuario"]), async (req, res) => {
     await cartService.handleDeleteProductFromCart(req, res);
   })
-  .put(async (req, res) => {
+  .put(roleMiddleware(["usuario"]), async (req, res) => {
     await cartService.handleUpdateProductQuantityInCart(req, res);
   });
 

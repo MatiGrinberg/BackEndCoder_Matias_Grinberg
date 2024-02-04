@@ -1,7 +1,8 @@
-const passport = require('../routes/passportConfig');
-const flash = require('express-flash');
-const bcrypt = require('bcrypt');
+const passport = require("../middleware/passportConfig");
+const flash = require("express-flash");
+const bcrypt = require("bcrypt");
 const User = require("../dao/schemas/userSchema");
+const UserProfileDTO = require("../dto/UserProfileDTO");
 
 class AuthServices {
   async githubAuthRedirect(req, res) {
@@ -53,9 +54,9 @@ class AuthServices {
     if (!req.isAuthenticated()) {
       return res.redirect("/");
     }
-    const userData = req.user.toObject();
+    const userDTO = new UserProfileDTO(req.user);
     res.render("../views/profile.handlebars", {
-      user_d: userData,
+      user_d: userDTO,
     });
   }
 
@@ -79,11 +80,7 @@ class AuthServices {
   }
 
   initializePassport() {
-    return [
-      flash(),
-      passport.initialize(),
-      passport.session()
-    ];
+    return [flash(), passport.initialize(), passport.session()];
   }
 }
 
