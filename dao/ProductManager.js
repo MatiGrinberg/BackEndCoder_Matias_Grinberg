@@ -1,8 +1,8 @@
 const Product = require("./schemas/productSchema");
+const mockProducts = require("./schemas/mockSchema");
 
 class ProductManager {
-  constructor() {
-  }
+  constructor() {}
   async addProduct({
     title,
     description,
@@ -123,6 +123,20 @@ class ProductManager {
     } catch (error) {
       console.error("Error updating product:", error);
       throw new Error("Error updating product");
+    }
+  }
+
+  // Add 100 mock products
+  async addMock(res) {
+    try {
+      const mockData = Array.from({ length: 100 }, (_, index) => ({
+        title: `Product ${index + 1}`,
+        price: Math.random() * 100,
+      }));
+      await mockProducts.insertMany(mockData);
+    } catch (error) {
+      console.error("Error mocking products:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   }
 }

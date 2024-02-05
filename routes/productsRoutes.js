@@ -3,6 +3,10 @@ const router = express.Router();
 const ProductServices = require("../services/ProductServices");
 const roleMiddleware = require("../middleware/roleAuth");
 
+router.route("/mockingproducts").get(async (req, res) => {
+  await ProductServices.mock(req, res);
+});
+
 router
   .route("/")
   .get(async (req, res) => {

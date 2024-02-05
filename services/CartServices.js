@@ -4,6 +4,7 @@ const ProductManager = require("../dao/ProductManager");
 const productManager = new ProductManager();
 const stripe = require("stripe")(process.env.STRIPE_SERVER_SECRET);
 const { stockCart } = require("../middleware/auxiliaryCartFunctions");
+const { CustomError, handleError } = require("../middleware/errorHandler");
 
 class CartServices {
   async handlePurchaseCart(req, res) {
@@ -18,8 +19,7 @@ class CartServices {
       res.render("../views/purchase.handlebars", { orderObject, cart });
       return;
     } catch (error) {
-      console.error("Error in Purchase:", error.message);
-      res.status(500).send("Internal Server Error");
+      handleError(error, res);
     }
   }
 
@@ -32,8 +32,7 @@ class CartServices {
       });
       res.status(200).json(stripeResponse);
     } catch (error) {
-      console.error("Error processing payment:", error);
-      res.status(500).json({ error: "Error processing payment" });
+      handleError(error, res);
     }
   }
 
@@ -59,10 +58,7 @@ class CartServices {
           .json({ status: "error", message: "Error creating cart" });
       }
     } catch (error) {
-      console.error("Error creating cart:", error.message);
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -71,9 +67,7 @@ class CartServices {
       const allCarts = await cartManager.hasCart(req.user._id);
       res.render("../views/carts.handlebars", { allCarts });
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -86,7 +80,7 @@ class CartServices {
       }
       res.render("../views/cart.handlebars", { cart });
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -100,15 +94,14 @@ class CartServices {
           message: "All products deleted from cart",
         });
       } else {
-        res.status(404).json({
-          status: "error",
-          message: "Cart not found or deletion failed",
-        });
+        const notFoundError = new CustomError(
+          "Cart not found or deletion failed",
+          404
+        );
+        handleError(notFoundError, res);
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -126,15 +119,14 @@ class CartServices {
           message: "Cart updated with new products",
         });
       } else {
-        res.status(404).json({
-          status: "error",
-          message: "Cart not found or update failed",
-        });
+        const notFoundError = new CustomError(
+          "Cart not found or Update failed",
+          404
+        );
+        handleError(notFoundError, res);
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -151,14 +143,14 @@ class CartServices {
       if (success) {
         res.redirect("/products");
       } else {
-        res.status(404).json({
-          error: "Cart or Product not found or addition failed",
-        });
+        const notFoundError = new CustomError(
+          "Cart not found or Addition failed",
+          404
+        );
+        handleError(notFoundError, res);
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -179,9 +171,7 @@ class CartServices {
         });
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 
@@ -201,15 +191,14 @@ class CartServices {
           message: "Product quantity updated in cart",
         });
       } else {
-        res.status(404).json({
-          status: "error",
-          message: "Cart or Product not found or update failed",
-        });
+        const notFoundError = new CustomError(
+          "Cart not found or Update_Prod_Q failed",
+          404
+        );
+        handleError(notFoundError, res);
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Internal Server Error" });
+      handleError(error, res);
     }
   }
 }

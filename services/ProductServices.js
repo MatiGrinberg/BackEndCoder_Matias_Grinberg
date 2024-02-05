@@ -1,7 +1,7 @@
 const ProductManager = require("../dao/ProductManager");
 const productManager = new ProductManager();
 const cartService = require("../services/CartServices");
-
+const { CustomError, handleError } = require("../middleware/errorHandler");
 
 class ProductServices {
   async getAllProducts(req, res) {
@@ -53,10 +53,11 @@ class ProductServices {
         }),
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: "Error fetching products: " + error.message,
-      });
+      const customError = new CustomError(
+        "Error fetching products: " + error.message,
+        500
+      );
+      handleError(customError, res);
     }
   }
 
@@ -73,12 +74,12 @@ class ProductServices {
       if (product) {
         res.json({ status: "success", payload: product });
       } else {
-        res.status(404).json({ status: "error", message: "Product not found" });
+        const notFoundError = new CustomError("Prod not found", 404);
+        handleError(notFoundError, res);
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Error fetching product by ID" });
+      const customError = new CustomError("Wrong Product", 500);
+      handleError(customError, res);
     }
   }
 
@@ -93,6 +94,11 @@ class ProductServices {
     const productId = req.params.id;
     productManager.deleteProduct(productId);
     res.json({ message: "Product deleted successfully" });
+  }
+
+  async mock(req, res) {
+    productManager.addMock(res);
+    res.json({ message: "Mock Products added successfully" });
   }
 }
 
