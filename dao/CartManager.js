@@ -1,6 +1,7 @@
 const Product = require("./schemas/productSchema");
 const Cart = require("./schemas/cartSchema");
 const Order = require("./schemas/orderSchema");
+const { loggerMiddleware } = require("../middleware/logger");
 
 class CartManager {
   async generateOrder(stockSplit) {
@@ -25,7 +26,7 @@ class CartManager {
 
       return order;
     } catch (error) {
-      console.error("Error generating order:", error.message);
+      loggerMiddleware.error("Error generating order:" + error.message);
     }
   }
 
@@ -49,7 +50,7 @@ class CartManager {
       cart.totalPrice = totalPrice;
       return cart;
     } catch (error) {
-      console.error("Error fetching cart:", error.message);
+      loggerMiddleware.error("Error fetching cart:" + error.message);
       return null;
     }
   }
@@ -59,7 +60,7 @@ class CartManager {
       const cart = await Cart.findOne({ userId }).lean();
       return cart || null;
     } catch (error) {
-      console.error("Error checking for cart:", error.message);
+      loggerMiddleware.error("Error checking for cart:" + error.message);
       return null;
     }
   }
@@ -75,7 +76,7 @@ class CartManager {
       });
       return newCart;
     } catch (error) {
-      console.error("Error creating cart:", error.message);
+      loggerMiddleware.error("Error creating cart:" + error.message);
       return null;
     }
   }
@@ -84,14 +85,13 @@ class CartManager {
     try {
       const cart = await Cart.findById(cartId);
       if (!cart) {
-        console.error("Cart not found");
+        loggerMiddleware.error("Cart not found");
         return false;
       }
       if (quantity === undefined) {
-        console.error("Quantity not provided");
+        loggerMiddleware.error("Quantity not provided");
         return false;
       }
-
       const existingProductIndex = cart.products.findIndex(
         (item) => item._id.toString() === productId.toString()
       );
@@ -101,11 +101,11 @@ class CartManager {
       } else {
         cart.products.push({ _id: productId, quantity: parseInt(quantity) });
       }
-
       await cart.save();
+      loggerMiddleware.info("Product added to cart successfully.");
       return true;
     } catch (error) {
-      console.error("Error adding product to cart:", error.message);
+      loggerMiddleware.error("Error adding product to cart:" + error.message);
       return false;
     }
   }
@@ -114,21 +114,23 @@ class CartManager {
     try {
       const cart = await Cart.findById(cartId);
       if (!cart) {
-        console.error("Cart not found");
+        loggerMiddleware.error("Cart not found");
         return false;
       }
       const product = cart.products.find(
         (item) => item._id.toString() === productId.toString()
       );
       if (!product) {
-        console.error("Product not found in cart");
+        loggerMiddleware.error("Product not found in cart");
         return false;
       }
       product.quantity = quantity;
       await cart.save();
       return true;
     } catch (error) {
-      console.error("Error updating product quantity in cart:", error.message);
+      loggerMiddleware.error(
+        "Error updating product quantity in cart:" + error.message
+      );
       return false;
     }
   }
@@ -148,9 +150,8 @@ class CartManager {
         return null;
       }
     } catch (error) {
-      console.error(
-        "Error deleting multiple products from cart:",
-        error.message
+      loggerMiddleware.error(
+        "Error deleting multiple products from cart:" + error.message
       );
       return null;
     }
@@ -160,16 +161,19 @@ class CartManager {
     try {
       const cart = await Cart.findById(cartId);
       if (!cart) {
-        console.error("Cart not found");
+        loggerMiddleware.error("Cart not found");
         return false;
       }
       cart.products = cart.products.filter(
         (item) => item._id.toString() !== productId.toString()
       );
       await cart.save();
+      loggerMiddleware.debug("Prod_Removed_From_Cart");
       return true;
     } catch (error) {
-      console.error("Error deleting product from cart:", error.message);
+      loggerMiddleware.error(
+        "Error deleting product from cart:" + error.message
+      );
       return false;
     }
   }
@@ -179,7 +183,7 @@ class CartManager {
       const carts = await Cart.find({});
       return carts;
     } catch (error) {
-      console.error("Error fetching carts:", error.message);
+      loggerMiddleware.error("Error fetching carts:" + error.message);
       return [];
     }
   }
@@ -188,14 +192,16 @@ class CartManager {
     try {
       const cart = await Cart.findById(cartId);
       if (!cart) {
-        console.error("Cart not found");
+        loggerMiddleware.error("Cart not found");
         return false;
       }
       cart.products = products;
       await cart.save();
       return true;
     } catch (error) {
-      console.error("Error updating cart with products:", error.message);
+      loggerMiddleware.error(
+        "Error updating cart with products:" + error.message
+      );
       return false;
     }
   }
@@ -204,14 +210,16 @@ class CartManager {
     try {
       const cart = await Cart.findById(cartId);
       if (!cart) {
-        console.error("Cart not found");
+        loggerMiddleware.error("Cart not found");
         return false;
       }
       cart.products = [];
       await cart.save();
       return true;
     } catch (error) {
-      console.error("Error deleting all products from cart:", error.message);
+      loggerMiddleware.error(
+        "Error deleting all products from cart:" + error.message
+      );
       return false;
     }
   }

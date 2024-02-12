@@ -1,4 +1,4 @@
-const Messages = require("../dao/Messages");
+const Messages = require("../dao/MessageManager");
 const { CustomError, handleError } = require("../middleware/errorHandler");
 
 class MessagesServices {

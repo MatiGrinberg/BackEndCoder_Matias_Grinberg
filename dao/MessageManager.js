@@ -1,12 +1,13 @@
-const Message = require('./schemas/messageSchema');
+const Message = require("./schemas/messageSchema");
+const { loggerMiddleware } = require("../middleware/logger");
 
 class MessageManager {
   static async getAllMessages() {
     try {
-      const messages = await Message.find().sort({ timestamp: 'desc' }).lean();
+      const messages = await Message.find().sort({ timestamp: "desc" }).lean();
       return messages;
     } catch (error) {
-      console.error('Error retrieving messages:', error);
+      loggerMiddleware.error("Error retrieving messages:" + error.message);
       return [];
     }
   }
@@ -20,7 +21,7 @@ class MessageManager {
       await newMessage.save();
       return newMessage;
     } catch (error) {
-      console.error('Error creating message:', error);
+      loggerMiddleware.error("Error creating message:" + error.message);
       return null;
     }
   }

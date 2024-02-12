@@ -1,5 +1,6 @@
 const Product = require("./schemas/productSchema");
 const mockProducts = require("./schemas/mockSchema");
+const { loggerMiddleware } = require("../middleware/logger");
 
 class ProductManager {
   constructor() {}
@@ -43,10 +44,9 @@ class ProductManager {
         status,
       });
       await product.save();
-      console.log("Product added successfully.");
+      loggerMiddleware.info("Product added successfully.");
     } catch (error) {
-      console.error("Error adding product:", error);
-      throw new Error("Error adding product");
+      loggerMiddleware.error("Error adding product:" + error.message);
     }
   }
 
@@ -67,13 +67,12 @@ class ProductManager {
     try {
       const productToDelete = await Product.findByIdAndDelete(productId);
       if (!productToDelete) {
-        console.error("Product not found");
+        loggerMiddleware.error("Product not found");
         return;
       }
-      console.log("Product deleted successfully.");
+      loggerMiddleware.info("Product deleted successfully.");
     } catch (error) {
-      console.error("Error deleting product:", error);
-      throw new Error("Error deleting product");
+      loggerMiddleware.error("Error deleting product:" + error.message);
     }
   }
 
@@ -83,8 +82,7 @@ class ProductManager {
       const products = await Product.find().lean();
       return products;
     } catch (error) {
-      console.error("Error fetching products:", error);
-      throw new Error("Error fetching products");
+      loggerMiddleware.error("Error fetching products:" + error.message);
     }
   }
 
@@ -93,13 +91,12 @@ class ProductManager {
     try {
       const product = await Product.findById(productId);
       if (!product) {
-        console.error("Product not found");
+        loggerMiddleware.error("Product not found");
         return null;
       }
       return product;
     } catch (error) {
-      console.error("Error fetching product by ID:", error);
-      throw new Error("Error fetching product by ID");
+      loggerMiddleware.error("Error fetching product by ID:" + error.message);
     }
   }
 
@@ -115,14 +112,15 @@ class ProductManager {
         }
       );
       if (!product) {
-        console.error("Product not found. Update failed.");
+        loggerMiddleware.error(
+          "Product not found. Update failed:" + error.message
+        );
         return null;
       }
-      console.log("Product updated successfully.");
+      loggerMiddleware.info("Product updated successfully.");
       return product;
     } catch (error) {
-      console.error("Error updating product:", error);
-      throw new Error("Error updating product");
+      loggerMiddleware.error("Error updating product:" + error.message);
     }
   }
 
@@ -135,7 +133,7 @@ class ProductManager {
       }));
       await mockProducts.insertMany(mockData);
     } catch (error) {
-      console.error("Error mocking products:", error);
+      loggerMiddleware.error("Error mocking products:" + error.message);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }

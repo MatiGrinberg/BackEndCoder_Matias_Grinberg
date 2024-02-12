@@ -27,6 +27,10 @@ app.use("/carts", cartRoutes);
 const messageRoutes = require("./routes/messageRoutes");
 app.use("/messages", messageRoutes);
 
+// LOGGER Routes
+const loggerRoutes = require("./routes/loggerRoutes");
+app.use("/loggerTest", loggerRoutes);
+
 // SERVER
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
