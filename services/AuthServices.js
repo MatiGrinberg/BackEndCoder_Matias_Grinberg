@@ -1,10 +1,63 @@
 const passport = require("../middleware/passportConfig");
 const flash = require("express-flash");
-const bcrypt = require("bcrypt");
-const User = require("../dao/schemas/userSchema");
+const UserManager = require("../dao/UserManager.js");
+const userManager = new UserManager();
 const UserProfileDTO = require("../dto/UserProfileDTO");
+const { CustomError, handleError } = require("../middleware/errorHandler");
 
 class AuthServices {
+  async resetPass(req, res) {
+    if (req.isAuthenticated()) {
+      return res.redirect("/products");
+    }
+    res.render("../views/resetPass.handlebars");
+  }
+
+  async sendEmailResetPass(req, res) {
+    const { email } = req.body;
+    try {
+      await userManager.resetPass(email);
+      res.redirect("/");
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
+  async resetLink(req, res) {
+    try {
+      const { email, timestamp } = req.params;
+      const now = Date.now();
+      const expirationTime = parseInt(timestamp) + 60 * 60 * 1000;
+      if (now > expirationTime) {
+        res.redirect("/resetPass");
+      } else {
+        res.render("../views/resetLink.handlebars", { email, timestamp });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
+  async updatePass(req, res) {
+    try {
+      const { email } = req.params;
+      const newPass = req.body.password;
+      userManager.updatePass(email, newPass);
+      res.redirect("/");
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
+  async localSignup(req, res) {
+    try {
+      await userManager.registerUser(req.body);
+      res.redirect("/");
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
   async githubAuthRedirect(req, res) {
     return passport.authenticate("github", {
       successRedirect: "/products",
@@ -25,29 +78,6 @@ class AuthServices {
       return res.redirect("/products");
     }
     res.render("../views/signup.handlebars");
-  }
-
-  async localSignup(req, res) {
-    try {
-      const { first_name, last_name, age, email, password } = req.body;
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ error: "Email already exists" });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new User({
-        first_name,
-        last_name,
-        age,
-        email,
-        password: hashedPassword,
-      });
-      await newUser.save();
-      res.redirect("/");
-    } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(500).json({ error: "Error registering user" });
-    }
   }
 
   async getProfile(req, res) {
