@@ -40,6 +40,7 @@ class ProductServices {
       res.render("../views/products.handlebars", {
         cart: cart,
         products: productsList,
+        userId: req.user._id,
         jsonData: JSON.stringify({
           status: "success",
           totalPages,
@@ -63,7 +64,8 @@ class ProductServices {
 
   async addProduct(req, res) {
     const newProduct = req.body;
-    productManager.addProduct(newProduct);
+    const ownerId = req.user._id;
+    productManager.addProduct(newProduct, ownerId);
     res.json({ message: "Product added successfully" });
   }
 
@@ -92,7 +94,9 @@ class ProductServices {
 
   async deleteProduct(req, res) {
     const productId = req.params.id;
-    productManager.deleteProduct(productId);
+    const role = req.user.role;
+    const userId = req.user._id;
+    productManager.deleteProduct(productId, role, userId);
     res.json({ message: "Product deleted successfully" });
   }
 

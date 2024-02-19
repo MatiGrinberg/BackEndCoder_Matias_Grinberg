@@ -12,7 +12,6 @@ class CartManager {
         amount,
         inStock,
       } = stockSplit;
-
       const orderDetails = {
         userId,
         code,
@@ -20,10 +19,8 @@ class CartManager {
         purchaser,
         products: inStock,
       };
-
       const order = new Order(orderDetails);
       await order.save();
-
       return order;
     } catch (error) {
       loggerMiddleware.error("Error generating order:" + error.message);

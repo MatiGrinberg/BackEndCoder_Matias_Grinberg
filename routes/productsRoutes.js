@@ -12,7 +12,7 @@ router
   .get(async (req, res) => {
     await ProductServices.getAllProducts(req, res);
   })
-  .post(roleMiddleware(["admin"]), async (req, res) => {
+  .post(roleMiddleware(["admin", "premium"]), async (req, res) => {
     await ProductServices.addProduct(req, res);
   });
 
@@ -24,7 +24,7 @@ router
   .put(roleMiddleware(["admin"]), async (req, res) => {
     await ProductServices.updateProduct(req, res);
   })
-  .delete(roleMiddleware(["admin"]), async (req, res) => {
+  .delete(roleMiddleware(["admin", "premium"]), async (req, res) => {
     await ProductServices.deleteProduct(req, res);
   });
 

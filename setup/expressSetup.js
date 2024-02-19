@@ -1,7 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const exphbs = require("express-handlebars");
-const methodOverride = require("method-override"); // Import the method-override middleware
+const methodOverride = require("method-override");
 
 function setupApp() {
   const app = express();

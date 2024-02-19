@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const User = require("./userSchema");
 
 const mockSchema = new mongoose.Schema({
   title: {
@@ -28,6 +29,11 @@ const mockSchema = new mongoose.Schema({
   status: {
     type: Boolean,
     default: true,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: "admin",
   },
 });
 

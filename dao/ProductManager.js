@@ -4,23 +4,28 @@ const { loggerMiddleware } = require("../middleware/logger");
 
 class ProductManager {
   constructor() {}
-  async addProduct({
-    title,
-    description,
-    price,
-    stock,
-    category,
-    thumbnails = [],
-    status = true,
-  } = {}) {
+  async addProduct(
+    {
+      title,
+      description,
+      price,
+      stock,
+      category,
+      thumbnails = [],
+      status = true,
+    } = {},
+    ownerId
+  ) {
+    price = parseFloat(price);
+    stock = parseInt(stock);
+    status = status === "on";
     if (
       typeof title !== "string" ||
       typeof description !== "string" ||
       typeof price !== "number" ||
       typeof stock !== "number" ||
       typeof category !== "string" ||
-      typeof status !== "boolean" ||
-      !Array.isArray(thumbnails)
+      typeof status !== "boolean"
     ) {
       throw new Error(
         "Invalid product format. Check the data types of the fields."
@@ -42,6 +47,7 @@ class ProductManager {
         category,
         thumbnails,
         status,
+        owner: ownerId,
       });
       await product.save();
       loggerMiddleware.info("Product added successfully.");
@@ -63,13 +69,23 @@ class ProductManager {
   }
 
   // Method to remove a product by its ID
-  async deleteProduct(productId) {
+  async deleteProduct(productId, role, userId) {
     try {
-      const productToDelete = await Product.findByIdAndDelete(productId);
+      const productToDelete = await Product.findById(productId);
       if (!productToDelete) {
         loggerMiddleware.error("Product not found");
         return;
       }
+      const userIdstr = userId.toString();
+      const ownerId = productToDelete.owner.toString();
+      console.log(productId, role, userIdstr, ownerId);
+      if (role === "premium" && ownerId !== userIdstr) {
+        loggerMiddleware.error(
+          "Premium user can only delete their own products"
+        );
+        return;
+      }
+      await Product.findByIdAndDelete(productId);
       loggerMiddleware.info("Product deleted successfully.");
     } catch (error) {
       loggerMiddleware.error("Error deleting product:" + error.message);

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const User = require("./userSchema");
 
 const productSchema = new mongoose.Schema({
   title: String,
@@ -6,8 +7,16 @@ const productSchema = new mongoose.Schema({
   price: Number,
   stock: Number,
   category: String,
-  thumbnails: [String],
+  thumbnails: {
+    type: [String],
+    default: ["hat1.jpg"],
+  },
   status: Boolean,
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: "admin",
+  },
 });
 
 const Product = mongoose.model("products", productSchema);

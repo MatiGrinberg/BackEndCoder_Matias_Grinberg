@@ -90,6 +90,22 @@ class AuthServices {
     });
   }
 
+  async changeRole(req, res) {
+    const userId = req.params.uid;
+    const loggedInUserId = req.user._id.toString();
+    try {
+      if (userId !== loggedInUserId) {
+        return res
+          .status(403)
+          .json({ error: "Unauthorized: You can only change your own role" });
+      }
+      const newRole = await userManager.changeUserRole(userId);
+      res.json({ message: "User role updated successfully" });
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
   renderLoginOrRedirect(req, res) {
     if (req.isAuthenticated()) {
       return res.redirect("/products");

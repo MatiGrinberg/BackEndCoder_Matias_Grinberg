@@ -49,6 +49,10 @@ router.get("/logout", async (req, res) => {
   await AuthServices.logout(req, res);
 });
 
+router.put("/changerole/:uid", async (req, res) => {
+  await AuthServices.changeRole(req, res);
+});
+
 module.exports = {
   router,
   initialize: AuthServices.initializePassport,

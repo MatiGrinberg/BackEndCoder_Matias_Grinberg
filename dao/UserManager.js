@@ -54,6 +54,28 @@ class UserManager {
       loggerMiddleware.error("Error Updating Password:" + error.message);
     }
   }
+
+  async changeUserRole(userId) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      let newRole;
+      if (user.role === "usuario") {
+        newRole = "premium";
+      } else if (user.role === "premium") {
+        newRole = "usuario";
+      } else {
+        throw new Error("Invalid user role");
+      }
+      user.role = newRole;
+      await user.save();
+      return newRole;
+    } catch (error) {
+      loggerMiddleware.error("Error Updating User_Role:" + error.message);
+    }
+  }
 }
 
 module.exports = UserManager;

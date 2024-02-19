@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-console.log("Loading Order Schema...");
 const User = require("./userSchema");
 const Product = require("./productSchema");
 
