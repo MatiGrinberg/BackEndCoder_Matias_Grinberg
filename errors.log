@@ -9,3 +9,21 @@
 2024-02-19T11:01:51.015Z error: Premium user can only delete their own products
 2024-02-19T11:07:41.766Z error: Error deleting product:Cannot access 'userId' before initialization
 2024-02-19T11:10:22.224Z error: Premium user can only delete their own products
+2024-02-29T10:10:40.923Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T10:10:48.014Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T10:11:32.247Z error: Error deleting product from cart:No matching document found for id "65e05842d7540d24e0862eac" version 4 modifiedPaths "products"
+2024-02-29T10:11:32.252Z error: Error deleting product from cart:No matching document found for id "65e05842d7540d24e0862eac" version 4 modifiedPaths "products"
+2024-02-29T10:11:32.268Z error: Error deleting product from cart:No matching document found for id "65e05842d7540d24e0862eac" version 4 modifiedPaths "products"
+2024-02-29T10:23:00.784Z error: Error fetching product by ID:Cast to ObjectId failed for value "mock" (type string) at path "_id" for model "products"
+2024-02-29T10:24:55.234Z error: Error fetching product by ID:Cast to ObjectId failed for value "mock" (type string) at path "_id" for model "products"
+2024-02-29T10:43:03.839Z error: Error fetching product by ID:Cast to ObjectId failed for value "6574bfddcb529059d1571c9s" (type string) at path "_id" for model "products"
+2024-02-29T14:49:56.106Z error: Error fetching cart:Cast to ObjectId failed for value "65e05842d7540d24e0862eaz" (type string) at path "_id" for model "carts"
+2024-02-29T14:51:09.868Z error: Error fetching product by ID:Cast to ObjectId failed for value "6574bfddcb529059d1571c9z" (type string) at path "_id" for model "products"
+2024-02-29T15:15:17.729Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:15:39.982Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:15:45.148Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:16:09.183Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:16:30.964Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:16:42.823Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:16:52.803Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-02-29T15:17:50.827Z error: Error fetching cart:Cannot read properties of null (reading 'price')

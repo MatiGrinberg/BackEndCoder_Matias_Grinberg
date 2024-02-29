@@ -15,13 +15,13 @@ const {
 app.use(initializeAuth());
 app.use("/", authRoutes);
 
-// PRODUCTS Routes
-const productsRoutes = require("./routes/productsRoutes");
-app.use("/products", productsRoutes);
-
 // CARTS Routes
 const cartRoutes = require("./routes/cartRoutes");
 app.use("/carts", cartRoutes);
+
+// PRODUCTS Routes
+const productsRoutes = require("./routes/productsRoutes");
+app.use("/products", productsRoutes);
 
 // MESSAGES Routes
 const messageRoutes = require("./routes/messageRoutes");
