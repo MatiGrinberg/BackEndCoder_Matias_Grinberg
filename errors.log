@@ -27,3 +27,10 @@
 2024-02-29T15:16:42.823Z error: Error fetching cart:Cannot read properties of null (reading 'price')
 2024-02-29T15:16:52.803Z error: Error fetching cart:Cannot read properties of null (reading 'price')
 2024-02-29T15:17:50.827Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-03-06T09:19:43.481Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-03-06T09:19:49.116Z error: Error fetching cart:Cannot read properties of null (reading 'price')
+2024-03-06T13:31:06.699Z error: Error checking for cart:Cast to ObjectId failed for value "user_id" (type string) at path "userId" for model "carts"
+2024-03-06T13:41:31.789Z error: Error checking for cart:Cast to ObjectId failed for value "user_id" (type string) at path "userId" for model "carts"
+2024-03-06T13:43:44.368Z error: Error fetching products:Operation `products.find()` buffering timed out after 10000ms
+2024-03-06T13:44:19.678Z error: Error checking for cart:Cast to ObjectId failed for value "user_id" (type string) at path "userId" for model "carts"
+2024-03-06T20:12:04.893Z error: Error fetching product by ID:Cast to ObjectId failed for value "valid_product_id" (type string) at path "_id" for model "products"

@@ -4,7 +4,7 @@
   "description": "Back End course CoerHouse",
   "main": "ProductManager.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Matias Grinberg",
   "license": "ISC",
@@ -27,6 +27,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0",
+    "sinon-chai": "^3.7.0",
     "socket.io": "^4.7.2",
     "stripe": "^14.14.0",
     "swagger-jsdoc": "^6.2.8",
@@ -38,5 +39,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MatiGrinberg/BackEndCoder_Matias_Grinberg.git"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^10.3.0",
+    "sinon": "^17.0.1",
+    "supertest": "^6.3.4"
   }
 }
