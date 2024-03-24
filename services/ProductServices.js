@@ -97,7 +97,7 @@ class ProductServices {
     const role = req.user.role;
     const userId = req.user._id;
     productManager.deleteProduct(productId, role, userId);
-    res.json({ message: "Product deleted successfully" });
+    res.json({ message: "Product deleted Operation_COMPLETED" });
   }
 
   async mock(req, res) {

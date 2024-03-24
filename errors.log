@@ -35,3 +35,12 @@
 2024-03-06T13:44:19.678Z error: Error checking for cart:Cast to ObjectId failed for value "user_id" (type string) at path "userId" for model "carts"
 2024-03-06T20:12:04.893Z error: Error fetching product by ID:Cast to ObjectId failed for value "valid_product_id" (type string) at path "_id" for model "products"
 2024-03-23T18:40:36.110Z error: Error updating user last connection: users validation failed: document: Path `document` is required.
+2024-03-24T15:04:45.654Z error: Premium user can only delete their own products
+2024-03-24T15:11:06.071Z error: Premium user can only delete their own products
+2024-03-24T15:18:26.512Z error: Error deleting product:Cannot read properties of null (reading 'toString')
+2024-03-24T15:20:04.106Z error: Error deleting product:Cannot read properties of null (reading 'toString')
+2024-03-24T15:21:45.155Z error: Error deleting product:Cannot read properties of null (reading 'toString')
+2024-03-24T15:32:49.016Z error: Premium user can only delete their own products
+2024-03-24T15:53:51.897Z error: Error deleting product:Cannot read properties of null (reading '_id')
+2024-03-24T15:55:07.095Z error: Error deleting product:Cannot read properties of null (reading '_id')
+2024-03-24T16:02:05.449Z error: Email already exists

@@ -1,9 +1,43 @@
 const Product = require("./schemas/productSchema");
 const mockProducts = require("./schemas/mockSchema");
 const { loggerMiddleware } = require("../middleware/logger");
+const { sendDelProd } = require("../middleware/deletedEmail");
 
 class ProductManager {
   constructor() {}
+
+  async deleteProduct(productId, role, userId) {
+    try {
+      const productToDelete = await Product.findById(productId)
+        .populate({
+          path: "owner",
+          model: "users",
+          select: "email",
+        })
+        .lean();
+      if (!productToDelete) {
+        loggerMiddleware.error("Product not found");
+        return;
+      }
+      const userIdstr = userId.toString();
+      const ownerId = productToDelete.owner._id.toString();
+      const ownEm = productToDelete.owner.email;
+
+      if (role === "premium" && ownerId !== userIdstr) {
+        loggerMiddleware.error(
+          "Premium user can only delete their own products"
+        );
+        return;
+      } else {
+        await Product.findByIdAndDelete(productId);
+        sendDelProd(ownEm);
+        loggerMiddleware.info("Product deleted successfully.");
+      }
+    } catch (error) {
+      loggerMiddleware.error("Error deleting product:" + error.message);
+    }
+  }
+
   async addProduct(
     {
       title,
@@ -68,31 +102,6 @@ class ProductManager {
     return code;
   }
 
-  // Method to remove a product by its ID
-  async deleteProduct(productId, role, userId) {
-    try {
-      const productToDelete = await Product.findById(productId);
-      if (!productToDelete) {
-        loggerMiddleware.error("Product not found");
-        return;
-      }
-      const userIdstr = userId.toString();
-      const ownerId = productToDelete.owner.toString();
-      console.log(productId, role, userIdstr, ownerId);
-      if (role === "premium" && ownerId !== userIdstr) {
-        loggerMiddleware.error(
-          "Premium user can only delete their own products"
-        );
-        return;
-      }
-      await Product.findByIdAndDelete(productId);
-      loggerMiddleware.info("Product deleted successfully.");
-    } catch (error) {
-      loggerMiddleware.error("Error deleting product:" + error.message);
-    }
-  }
-
-  // Method to list all products
   async getProducts() {
     try {
       const products = await Product.find().lean();
@@ -102,7 +111,6 @@ class ProductManager {
     }
   }
 
-  // Method to get a product by its ID
   async getProductById(productId) {
     try {
       const product = await Product.findById(productId);
@@ -116,15 +124,14 @@ class ProductManager {
     }
   }
 
-  // Method to Update a product by its ID
   async updateProduct(productId, fieldsToUpdate) {
     try {
       const product = await Product.findByIdAndUpdate(
         productId,
         fieldsToUpdate,
         {
-          new: true, // Return the modified product
-          runValidators: true, // Validate fields during update
+          new: true,
+          runValidators: true,
         }
       );
       if (!product) {
@@ -140,7 +147,6 @@ class ProductManager {
     }
   }
 
-  // Add 100 mock products
   async addMock(res) {
     try {
       const mockData = Array.from({ length: 100 }, (_, index) => ({

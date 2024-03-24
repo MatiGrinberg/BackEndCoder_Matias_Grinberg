@@ -21,4 +21,17 @@ async function sendDeletedAccountEmail(email) {
   } catch (error) {}
 }
 
-module.exports = { sendDeletedAccountEmail };
+async function sendDelProd(email) {
+  try {
+    const message = "Your product has been deleted.";
+    const subject = "Product Deletion Notification";
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: email,
+      subject: subject,
+      text: message,
+    });
+  } catch (error) {}
+}
+
+module.exports = { sendDeletedAccountEmail, sendDelProd };

@@ -104,7 +104,7 @@ router
   .put(roleMiddleware(["admin"]), async (req, res) => {
     await ProductServices.updateProduct(req, res);
   })
-  .delete(roleMiddleware(["admin", "premium"]), async (req, res) => {
+  .delete(roleMiddleware(["admin", "premium", "usuario"]), async (req, res) => {
     await ProductServices.deleteProduct(req, res);
   });
 
