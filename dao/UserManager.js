@@ -4,6 +4,18 @@ const bcrypt = require("bcrypt");
 const { sendEmail } = require("../middleware/emailSender");
 
 class UserManager {
+  async lastConnection(userId) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      user.last_connection = new Date();
+      await user.save();
+    } catch (error) {
+      loggerMiddleware.error("Error updating user last connection:", error);
+    }
+  }
   async registerUser(userData) {
     const { first_name, last_name, age, email, password } = userData;
     const existingUser = await User.findOne({ email });

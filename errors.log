@@ -34,3 +34,4 @@
 2024-03-06T13:43:44.368Z error: Error fetching products:Operation `products.find()` buffering timed out after 10000ms
 2024-03-06T13:44:19.678Z error: Error checking for cart:Cast to ObjectId failed for value "user_id" (type string) at path "userId" for model "carts"
 2024-03-06T20:12:04.893Z error: Error fetching product by ID:Cast to ObjectId failed for value "valid_product_id" (type string) at path "_id" for model "products"
+2024-03-23T18:40:36.110Z error: Error updating user last connection: users validation failed: document: Path `document` is required.

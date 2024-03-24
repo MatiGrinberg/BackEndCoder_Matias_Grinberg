@@ -1,6 +1,23 @@
 const express = require("express");
 const router = express.Router();
 const AuthServices = require("../services/AuthServices");
+const uploadFiles = require("../middleware/multer");
+
+router.post(
+  "/upload",
+  uploadFiles.fields([
+    { name: "id" },
+    { name: "domicile" },
+    { name: "status" },
+  ]),
+  async (req, res) => {
+    await AuthServices.getProfile(req, res);
+  }
+);
+
+router.post("/changerole/:uid", async (req, res) => {
+  await AuthServices.changeRole(req, res);
+});
 
 router
   .route("/resetPass")
@@ -31,6 +48,9 @@ router.get("/", async (req, res) => {
 router.post("/login", async (req, res) => {
   await AuthServices.localLogin(req, res);
 });
+router.get("/logout", async (req, res) => {
+  await AuthServices.logout(req, res);
+});
 
 router
   .route("/signup")
@@ -43,14 +63,6 @@ router
 
 router.get("/profile", async (req, res) => {
   await AuthServices.getProfile(req, res);
-});
-
-router.get("/logout", async (req, res) => {
-  await AuthServices.logout(req, res);
-});
-
-router.put("/changerole/:uid", async (req, res) => {
-  await AuthServices.changeRole(req, res);
 });
 
 module.exports = {

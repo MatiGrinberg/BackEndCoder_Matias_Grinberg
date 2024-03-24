@@ -4,23 +4,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Profile</title>
     <style>
-      body { font-family: Arial, sans-serif; margin: 20px; } h1 { color: #333; }
-      p { margin: 5px 0; } a { text-decoration: none; color: #007BFF;
-      margin-right: 10px; } #logout { margin-top: 10px; } /* Styles for the nav
-      bar */ nav { display: flex; justify-content: space-between; align-items:
-      center; background-color: #333; padding: 10px; } nav a { color: white;
-      margin-right: 10px; } nav a:hover { text-decoration: underline; }
-      #user-info { color: #007BFF; font-size: 1.2em; }
+      body { font-family: Arial, sans-serif; margin: 0; padding: 0;
+      background-color: #f4f4f4; } h1 { color: #333; } nav { background-color:
+      #333; color: white; padding: 10px; display: flex; justify-content:
+      space-between; align-items: center; } nav a { color: white;
+      text-decoration: none; margin-right: 10px; } nav a:hover {
+      text-decoration: underline; } .container { max-width: 800px; margin: 20px
+      auto; padding: 20px; background-color: #fff; border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); } form { margin-top: 20px; }
+      input[type="file"] { margin-bottom: 10px; } button[type="submit"] {
+      background-color: #007BFF; color: #fff; border: none; padding: 10px 20px;
+      cursor: pointer; border-radius: 5px; } button[type="submit"]:hover {
+      background-color: #0056b3; }
     </style>
   </head>
   <body>
+
     <nav>
       <div id="user-info">
         {{#if user_d}}
           Welcome,
-          <strong>{{user_d.first_name}}
-            {{user_d.last_name}}
-            {{user_d.role}}</strong>
+          <strong>{{user_d.first_name}} {{user_d.last_name}}</strong>
         {{else}}
           Not Logged In
         {{/if}}
@@ -32,13 +36,38 @@
       </div>
     </nav>
 
-    <h1>User Profile</h1>
+    <div class="container">
+      <h1>User Profile</h1>
 
-    {{#if user_d}}
-      <p>First Name: {{user_d.first_name}}</p>
-      <p>Last Name: {{user_d.last_name}}</p>
-    {{else}}
-      <p>No user logged in.</p>
-    {{/if}}
+      {{#if user_d}}
+        <p>First Name: {{user_d.first_name}}</p>
+        <p>Last Name: {{user_d.last_name}}</p>
+        {{#checkType user_d.id "string"}}
+          <p>User Id is a string: {{user_d.id}}</p>
+        {{else}}
+          <p>User Id is not a string</p>
+        {{/checkType}}
+        {{#ifEquals user_d.role "usuario"}}
+          <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="id" /><br />
+            <input type="file" name="domicile" /><br />
+            <input type="file" name="status" /><br />
+            <button type="submit">Upload Files</button>
+          </form>
+        {{/ifEquals}}
+        {{#if idUploaded}}
+          {{#if domicileUploaded}}
+            {{#if statusUploaded}}
+              <form action="/changerole/{{user_d.id}}" method="post">
+                <button type="submit">Upgrade to Premium</button>
+              </form>
+            {{/if}}
+          {{/if}}
+        {{/if}}
+      {{else}}
+        <p>No user logged in.</p>
+      {{/if}}
+    </div>
+
   </body>
 </html>

@@ -4,8 +4,51 @@ const UserManager = require("../dao/UserManager.js");
 const userManager = new UserManager();
 const UserProfileDTO = require("../dto/UserProfileDTO");
 const { CustomError, handleError } = require("../middleware/errorHandler");
+const fs = require("fs");
+const path = require("path");
 
 class AuthServices {
+  async changeRole(req, res) {
+    const userId = req.params.uid;
+    const loggedInUserId = req.user._id.toString();
+    console.log(userId, loggedInUserId);
+    try {
+      if (userId !== loggedInUserId) {
+        return res
+          .status(403)
+          .json({ error: "Unauthorized: You can only change your own role" });
+      }
+      const newRole = await userManager.changeUserRole(userId);
+      res.json({ message: "User role updated successfully" });
+    } catch (error) {
+      handleError(error, res);
+    }
+  }
+
+  async getProfile(req, res) {
+    if (!req.isAuthenticated()) {
+      return res.redirect("/");
+    }
+    const userDTO = new UserProfileDTO(req.user);
+    const userId = req.user.id;
+    const uploadsDir = path.join(__dirname, `../uploads`);
+    const idUploaded = fs.existsSync(
+      path.join(uploadsDir, "id", userId.toString())
+    );
+    const domicileUploaded = fs.existsSync(
+      path.join(uploadsDir, "domicile", userId.toString())
+    );
+    const statusUploaded = fs.existsSync(
+      path.join(uploadsDir, "status", userId.toString())
+    );
+    res.render("../views/profile.handlebars", {
+      user_d: userDTO,
+      idUploaded: idUploaded,
+      domicileUploaded: domicileUploaded,
+      statusUploaded: statusUploaded,
+    });
+  }
+
   async resetPass(req, res) {
     if (req.isAuthenticated()) {
       return res.redirect("/products");
@@ -70,7 +113,22 @@ class AuthServices {
       successRedirect: "/carts",
       failureRedirect: "/",
       failureFlash: true,
-    })(req, res);
+    })(req, res, async () => {
+      await userManager.lastConnection(req.user._id);
+    });
+  }
+
+  async logout(req, res) {
+    await userManager.lastConnection(req.user._id);
+    req.logout(() => {
+      req.session.destroy(async (err) => {
+        if (err) {
+          console.error("Error destroying session:", err);
+          return res.status(500).json({ error: "Could not log out" });
+        }
+        res.redirect("/");
+      });
+    });
   }
 
   async renderSignup(req, res) {
@@ -80,49 +138,11 @@ class AuthServices {
     res.render("../views/signup.handlebars");
   }
 
-  async getProfile(req, res) {
-    if (!req.isAuthenticated()) {
-      return res.redirect("/");
-    }
-    const userDTO = new UserProfileDTO(req.user);
-    res.render("../views/profile.handlebars", {
-      user_d: userDTO,
-    });
-  }
-
-  async changeRole(req, res) {
-    const userId = req.params.uid;
-    const loggedInUserId = req.user._id.toString();
-    try {
-      if (userId !== loggedInUserId) {
-        return res
-          .status(403)
-          .json({ error: "Unauthorized: You can only change your own role" });
-      }
-      const newRole = await userManager.changeUserRole(userId);
-      res.json({ message: "User role updated successfully" });
-    } catch (error) {
-      handleError(error, res);
-    }
-  }
-
   renderLoginOrRedirect(req, res) {
     if (req.isAuthenticated()) {
       return res.redirect("/products");
     }
     res.render("../views/login.handlebars");
-  }
-
-  async logout(req, res) {
-    req.logout(() => {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error("Error destroying session:", err);
-          return res.status(500).json({ error: "Could not log out" });
-        }
-        res.redirect("/");
-      });
-    });
   }
 
   initializePassport() {
