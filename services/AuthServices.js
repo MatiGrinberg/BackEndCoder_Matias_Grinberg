@@ -6,8 +6,43 @@ const UserProfileDTO = require("../dto/UserProfileDTO");
 const { CustomError, handleError } = require("../middleware/errorHandler");
 const fs = require("fs");
 const path = require("path");
+const { loggerMiddleware } = require("../middleware/logger");
 
 class AuthServices {
+  async deleteOldUsers(req, res) {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.redirect("/");
+      }
+      const delCount = await userManager.deleteInactiveUsers();
+      loggerMiddleware.info(`${delCount} user(s) deleted successfully.`);
+    } catch (error) {
+      const customError = new CustomError(
+        "Error DELETING USERS: " + error.message,
+        500
+      );
+      handleError(customError, res);
+    }
+  }
+
+  async getUsers(req, res) {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.redirect("/");
+      }
+      const users = await userManager.getUsers();
+      res.render("../views/users.handlebars", {
+        user_list: users,
+      });
+    } catch (error) {
+      const customError = new CustomError(
+        "Error fetching USERS: " + error.message,
+        500
+      );
+      handleError(customError, res);
+    }
+  }
+
   async changeRole(req, res) {
     const userId = req.params.uid;
     const loggedInUserId = req.user._id.toString();

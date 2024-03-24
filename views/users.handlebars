@@ -1,0 +1,34 @@
+<!-- users.handlebars -->
+
+<html>
+  <head>
+    <title>All Users</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin:
+      0; padding: 0; } .container { max-width: 800px; margin: 20px auto;
+      padding: 20px; background-color: #fff; border-radius: 5px; box-shadow: 0 0
+      10px rgba(0, 0, 0, 0.1); } h1 { color: #333; } ul { list-style-type: none;
+      padding: 0; } li { margin-bottom: 10px; padding: 10px; border: 1px solid
+      #ccc; border-radius: 5px; background-color: #f9f9f9; } li:hover {
+      background-color: #eaeaea; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>All Users ({{user_list.length}})</h1>
+      <ul>
+        {{#each user_list}}
+          <li>
+            <strong>Name:</strong>
+            {{this.first_name}}
+            {{this.last_name}}<br />
+            <strong>Email:</strong>
+            {{this.email}}<br />
+            <strong>Role:</strong>
+            {{this.role}}
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  </body>
+</html>

@@ -2,8 +2,39 @@ const User = require("./schemas/userSchema");
 const { loggerMiddleware } = require("../middleware/logger");
 const bcrypt = require("bcrypt");
 const { sendEmail } = require("../middleware/emailSender");
+const { sendDeletedAccountEmail } = require("../middleware/deletedEmail");
 
 class UserManager {
+  async deleteInactiveUsers() {
+    try {
+      const limitDate = 48 * 60 * 60 * 1000;
+      const cutoffDate = new Date(Date.now() - limitDate);
+      const deletedUsers = await User.find({
+        last_connection: { $lt: cutoffDate },
+      });
+      const result = await User.deleteMany({
+        last_connection: { $lt: cutoffDate },
+      });
+      for (const user of deletedUsers) {
+        await sendDeletedAccountEmail(user.email);
+      }
+      return result.deletedCount;
+    } catch (error) {
+      throw new Error("Error deleting inactive users: " + error.message);
+    }
+  }
+
+  async getUsers() {
+    try {
+      const users = await User.find().lean();
+      return users;
+    } catch (error) {
+      throw new Error(
+        "Error fetching users from the database: " + error.message
+      );
+    }
+  }
+
   async lastConnection(userId) {
     try {
       const user = await User.findById(userId);
@@ -16,6 +47,7 @@ class UserManager {
       loggerMiddleware.error("Error updating user last connection:", error);
     }
   }
+
   async registerUser(userData) {
     const { first_name, last_name, age, email, password } = userData;
     const existingUser = await User.findOne({ email });

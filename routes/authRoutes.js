@@ -3,6 +3,15 @@ const router = express.Router();
 const AuthServices = require("../services/AuthServices");
 const uploadFiles = require("../middleware/multer");
 
+router
+  .route("/users")
+  .get(async (req, res) => {
+    await AuthServices.getUsers(req, res);
+  })
+  .delete(async (req, res) => {
+    await AuthServices.deleteOldUsers(req, res);
+  });
+
 router.post(
   "/upload",
   uploadFiles.fields([
